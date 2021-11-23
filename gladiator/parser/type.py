@@ -16,7 +16,9 @@ def parse_type_definition(node: xml.Element):
 
 
 def generate_type_definitions(container_node: xml.Element):
-    """Parse the given node's descendent <type> definitions and generate objects."""
+    """Parse all OpenGL <type> definitions and yield them."""
     for node in container_node:
-        if node.attrib.get("name", None) != "khrplatform":  # NOTE: skip #include directive
+        if (
+            node.attrib.get("name", None) != "khrplatform"
+        ):  # NOTE: skip #include directive
             yield parse_type_definition(node)
