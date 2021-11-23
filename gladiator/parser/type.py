@@ -15,7 +15,7 @@ def parse_type_definition(node: xml.Element):
     return TypeDefinition("".join(node.itertext()))
 
 
-def generate_type_definitions(container_node: xml.Element):
+def get_type_definitions(container_node: xml.Element):
     """Parse all OpenGL <type> definitions and yield them."""
     for node in container_node:
         if (
