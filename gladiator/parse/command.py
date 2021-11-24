@@ -85,7 +85,7 @@ def _parse_named_type(param: xml.Element, ptype: xml.Element):
     return (
         ptype.text.strip(),
         _parse_front_modifiers(param, ptype),
-        OptionalValue(ptype.tail).map(lambda t: t.strip()).truthy_or_none,
+        ptype.tail,
     )
 
 
@@ -100,8 +100,8 @@ def _parse_type(param: xml.Element):
     return Type(
         low_level=low_level,
         high_level=param.attrib.get("group"),
-        front_modifiers=fmod,
-        back_modifiers=bmod,
+        front_modifiers=OptionalValue(fmod).map(lambda t: t.strip()).truthy_or_none,
+        back_modifiers=OptionalValue(bmod).map(lambda t: t.strip()).truthy_or_none,
     )
 
 

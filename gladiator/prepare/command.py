@@ -65,6 +65,7 @@ class PreparedImplementation:
 
 @attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True)
 class PreparedCommand:
+    original_name: str  #: as defined in OpenGL spec
     name: str
     namespace: str
     type_: CommandType
@@ -126,6 +127,7 @@ def prepare_commands(
 
     for command in commands:
         yield command.name, PreparedCommand(
+            original_name=command.name,
             name=command.name,
             namespace="gl",
             type_=CommandType.DEFAULT,

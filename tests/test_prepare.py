@@ -1,5 +1,7 @@
 """Test preparing commands and enums."""
 
+from typing import List
+
 import xml.etree.ElementTree as xml
 
 import pytest
@@ -7,7 +9,14 @@ import pytest
 from gladiator.parse.enum import parse_required_enums
 from gladiator.parse.command import parse_required_commands
 from gladiator.prepare.enum import prepare_enums
-from gladiator.prepare.command import prepare_commands, CommandType, CastAction
+from gladiator.prepare.command import prepare_commands, CommandType
+from gladiator.prepare.feature import prepare_feature_levels, PreparedFeatureLevel
+from gladiator.parse.feature import (
+    Feature,
+    FeatureApi,
+    FeatureVersion,
+    get_feature_requirements,
+)
 
 
 def _get_enum_nodes(spec: xml.Element):
@@ -51,3 +60,43 @@ def test_prepare_command(spec: xml.Element):
         next(iter(gl_clear.implementation.params)).type_.high_level
         == enums["ClearBufferMask"]
     )
+
+
+def _collect_features(spec: xml.Element):
+    for node in spec:
+        if node.tag == "feature":
+            yield node
+
+
+def _load_feature(feature, spec):
+    f_nodes = tuple(_collect_features(spec))
+    e_nodes = tuple(_get_enum_nodes(spec))
+    c_root = _get_commands_root(spec)
+    requirements = get_feature_requirements(feature, f_nodes)
+    enums = tuple(parse_required_enums(tuple(requirements.enums.keys()), e_nodes))
+    enums = dict(prepare_enums(enums))
+    commands = tuple(
+        parse_required_commands(tuple(requirements.commands.keys()), c_root)
+    )
+    commands = dict(prepare_commands(commands, enums))
+    return prepare_feature_levels(feature.api, requirements, commands)
+
+
+def _is_sorted(levels: List[PreparedFeatureLevel]):
+    return all(levels[i] < levels[i + 1] for i in range(len(levels) - 1))
+
+
+def test_prepare_feature(spec: xml.Element):
+    gl_1_1 = Feature(api=FeatureApi.GL, version=FeatureVersion(major=1, minor=1))
+    levels = _load_feature(gl_1_1, spec)
+    # must be sorted in ascending order
+    assert _is_sorted(levels)
+    # immediate mode still present when requesting a v1.1 profile
+    lev_1_0 = next(l for l in levels if l.version.major == 1 and l.version.minor == 0)
+    assert "glColor3f" in [c.original_name for c in lev_1_0.commands]
+
+    gl_3_1 = Feature(api=FeatureApi.GL, version=FeatureVersion(major=3, minor=1))
+    levels = _load_feature(gl_3_1, spec)
+    # immediate mode not present anymore requesting a v3.1 profile
+    lev_3_1 = next(l for l in levels if l.version.major == 3 and l.version.minor == 1)
+    assert "glColor3f" not in [c.original_name for c in lev_3_1.commands]
