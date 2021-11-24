@@ -2,7 +2,15 @@
 
 import xml.etree.ElementTree as xml
 
+import pytest
+
 from gladiator.parser.command import parse_required_commands
+from gladiator.parser.feature import (
+    get_feature_requirements,
+    Feature,
+    FeatureApi,
+    FeatureVersion,
+)
 
 
 def test_parse_enums(spec: xml.Element):
@@ -26,7 +34,7 @@ def test_parse_enums(spec: xml.Element):
 
             assert size_param.name == "n"
             assert size_param.type_.low_level == "GLsizei"
-            assert size_param.type_.high_level == "GLsizei"
+            assert size_param.type_.high_level is None
 
             texture_param = next(param_iter)
             assert texture_param.name == "textures"
@@ -41,7 +49,7 @@ def test_parse_enums(spec: xml.Element):
             assert residences_param.type_.back_modifiers == "*"
 
             assert clear.return_type.low_level == "void"
-            assert clear.return_type.high_level == "void"
+            assert clear.return_type.high_level is None
             assert not clear.return_type.front_modifiers
             assert not clear.return_type.back_modifiers
 
@@ -53,3 +61,37 @@ def test_parse_enums(spec: xml.Element):
             assert mask_param.type_.high_level == "ClearBufferMask"
             assert not mask_param.type_.front_modifiers
             assert not mask_param.type_.back_modifiers
+
+
+TESTED_FEATURE = Feature(api=FeatureApi.GL, version=FeatureVersion(major=4, minor=6))
+
+
+def _collect_features(spec: xml.Element):
+    for node in spec:
+        if node.tag == "feature":
+            yield node
+
+
+def _collect_required(spec: xml.Element):
+    return tuple(
+        get_feature_requirements(
+            TESTED_FEATURE, tuple(_collect_features(spec))
+        ).commands.keys()
+    )
+
+
+def _collect_commands(spec: xml.Element):
+    for node in spec:
+        if node.tag == "commands":
+            return parse_required_commands(node, tuple(_collect_required(spec)))
+
+    pytest.fail("no commands found in spec")
+
+
+def test_parse_array_params(spec: xml.Element):
+    for command in _collect_commands(spec):
+        for param in command.params:
+            if param.length is not None:
+                assert "*" in (
+                    param.type_.back_modifiers or []
+                ), f"invalid array param {param.name} of command {command.name}"

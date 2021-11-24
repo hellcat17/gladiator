@@ -41,3 +41,8 @@ class OptionalValue(Generic[T]):  # pragma: no cover
     def truthy_or_none(self) -> Optional[T]:
         """Return the value if it is 'truthy', None otherwise."""
         return self.value_ if self.value_ else None
+
+    @property
+    def has_value(self) -> bool:
+        """Determine if this optional contains a value."""
+        return self.value_ is not None

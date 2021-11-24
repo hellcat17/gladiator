@@ -1,7 +1,8 @@
 """Parse OpenGL enum definitions required by feature levels."""
 
 from copy import copy
-from typing import Optional, Iterable
+from pathlib import Path
+from typing import Optional, Iterable, Sequence
 import xml.etree.ElementTree as xml
 
 import attr
@@ -25,6 +26,7 @@ class Parameter:
 
     name: str
     type_: Type
+    length: Optional[str]  #: length or parameter name
 
 
 @attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True)
@@ -42,23 +44,59 @@ def _parse_front_modifiers(node: xml.Element, ptype: xml.Element):
     return " ".join(fragments[0:ptype_index]).strip()
 
 
-def _parse_type(node: xml.Element):
-    # remove non-type elements in the type definition (e.g. <name> in proto/param)
-    node = copy(node)
-    name_node = node.find("name")
+def _strip_name_tag(param: xml.Element):
+    param = copy(param)
+    name_node = param.find("name")
     if name_node is not None:
-        node.remove(name_node)
+        param.remove(name_node)
+    return param
 
-    ptype = OptionalValue(node.find("ptype"))
-    low_level = (
-        ptype.map(lambda n: n.text).or_else("".join(node.itertext())).value.strip()
+
+KNOWN_LOW_LEVEL_TYPES = Path("data/low_level_types").read_text()
+
+
+def _locate_type(fragments: Sequence[str]):
+    for index in range(len(fragments)):
+        if fragments[index] in KNOWN_LOW_LEVEL_TYPES:
+            return index
+    return -1
+
+
+def _parse_low_level_type(param: xml.Element):
+    # if the ptype tag is missing, we cannot identify modifiers, so we try
+    # locate the base type within the whole string from a list of known
+    # low-level types and infer modifiers knowing the type's location
+    fragments = "".join(t.strip() for t in param.itertext()).split(" ")
+    type_index = _locate_type(fragments)
+    if type_index == -1:
+        return " ".join(fragments), None, None
+
+    return (
+        fragments[type_index],
+        " ".join(fragments[:type_index]),
+        " ".join(fragments[(type_index + 1) :]),
     )
-    fmod = ptype.map(lambda n: _parse_front_modifiers(node, n)).truthy_or_none
-    bmod = ptype.map(lambda n: n.tail).map(lambda t: t.strip()).truthy_or_none
+
+
+def _parse_high_level_type(param: xml.Element, ptype: xml.Element):
+    return (
+        ptype.text.strip(),
+        _parse_front_modifiers(param, ptype),
+        OptionalValue(ptype.tail).map(lambda t: t.strip()).truthy_or_none,
+    )
+
+
+def _parse_type(param: xml.Element):
+    param = _strip_name_tag(param)
+    ptype = param.find("ptype")
+    if ptype is not None:
+        low_level, fmod, bmod = _parse_high_level_type(param, ptype)
+    else:
+        low_level, fmod, bmod = _parse_low_level_type(param)
 
     return Type(
         low_level=low_level,
-        high_level=node.attrib.get("group") or low_level,
+        high_level=param.attrib.get("group"),
         front_modifiers=fmod,
         back_modifiers=bmod,
     )
@@ -78,6 +116,7 @@ def _parse_parameters(command_node: xml.Element):
             yield Parameter(
                 name=OptionalValue(node.find("name")).map(lambda n: n.text).value,
                 type_=_parse_type(node),
+                length=node.attrib.get("len"),
             )
 
 
