@@ -17,7 +17,7 @@ def test_parse_enums(spec: xml.Element):
     for node in spec:
         if node.tag == "commands":
             commands = tuple(
-                parse_required_commands(node, ["glAreTexturesResident", "glClear"])
+                parse_required_commands(["glAreTexturesResident", "glClear"], node)
             )
             resident = next(c for c in commands if c.name == "glAreTexturesResident")
             clear = next(c for c in commands if c.name == "glClear")
@@ -83,7 +83,7 @@ def _collect_required(spec: xml.Element):
 def _collect_commands(spec: xml.Element):
     for node in spec:
         if node.tag == "commands":
-            return parse_required_commands(node, tuple(_collect_required(spec)))
+            return parse_required_commands(tuple(_collect_required(spec)), node)
 
     pytest.fail("no commands found in spec")
 

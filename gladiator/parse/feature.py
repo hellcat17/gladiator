@@ -23,7 +23,7 @@ class InvalidVersion(Exception):
     """Cannot parse OpenGL feature version number."""
 
     def __init__(self, version: str):
-        super().__init__("Cannot parse feature version '{}'".format(version))
+        super().__init__(f"Cannot parse feature version '{version}'")
 
 
 @attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True)

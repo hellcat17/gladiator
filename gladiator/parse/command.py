@@ -12,10 +12,10 @@ from gladiator.optional import OptionalValue
 
 @attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True)
 class Type:
-    """OpenGL type containing a low-level and a potential high-level type."""
+    """OpenGL type containing a low-level and potentially a high-level type."""
 
     low_level: str
-    high_level: str  #: if non-existent, equals low_level
+    high_level: Optional[str]
     front_modifiers: Optional[str]
     back_modifiers: Optional[str]
 
@@ -52,17 +52,20 @@ def _strip_name_tag(param: xml.Element):
     return param
 
 
-KNOWN_LOW_LEVEL_TYPES = Path("data/low_level_types").read_text()
+KNOWN_LOW_LEVEL_TYPES = (
+    Path("data/low_level_types").read_text(encoding="utf-8").split("\n")
+)
 
 
 def _locate_type(fragments: Sequence[str]):
-    for index in range(len(fragments)):
-        if fragments[index] in KNOWN_LOW_LEVEL_TYPES:
+
+    for index, fragment in enumerate(fragments):
+        if fragment in KNOWN_LOW_LEVEL_TYPES:
             return index
     return -1
 
 
-def _parse_low_level_type(param: xml.Element):
+def _parse_unnamed_type(param: xml.Element):
     # if the ptype tag is missing, we cannot identify modifiers, so we try
     # locate the base type within the whole string from a list of known
     # low-level types and infer modifiers knowing the type's location
@@ -78,7 +81,7 @@ def _parse_low_level_type(param: xml.Element):
     )
 
 
-def _parse_high_level_type(param: xml.Element, ptype: xml.Element):
+def _parse_named_type(param: xml.Element, ptype: xml.Element):
     return (
         ptype.text.strip(),
         _parse_front_modifiers(param, ptype),
@@ -90,9 +93,9 @@ def _parse_type(param: xml.Element):
     param = _strip_name_tag(param)
     ptype = param.find("ptype")
     if ptype is not None:
-        low_level, fmod, bmod = _parse_high_level_type(param, ptype)
+        low_level, fmod, bmod = _parse_named_type(param, ptype)
     else:
-        low_level, fmod, bmod = _parse_low_level_type(param)
+        low_level, fmod, bmod = _parse_unnamed_type(param)
 
     return Type(
         low_level=low_level,
@@ -129,7 +132,8 @@ def parse_command(node: xml.Element):
 
 
 def parse_required_commands(
-    container_node: xml.Element, required_commands: Iterable[str]
+    required_commands: Iterable[str],
+    container_node: xml.Element,
 ):
     """Parse all required commands and yield their names, parameters and return types."""
     for node in container_node:
