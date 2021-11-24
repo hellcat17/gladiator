@@ -4,8 +4,8 @@ import xml.etree.ElementTree as xml
 
 import pytest
 
-from gladiator.parser.command import parse_required_commands
-from gladiator.parser.feature import (
+from gladiator.parse.command import parse_required_commands
+from gladiator.parse.feature import (
     get_feature_requirements,
     Feature,
     FeatureApi,

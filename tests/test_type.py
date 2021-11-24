@@ -2,7 +2,7 @@
 
 import xml.etree.ElementTree as xml
 
-from gladiator.parser.type import get_type_definitions
+from gladiator.parse.type import get_type_definitions
 
 
 def test_parse_definitions(spec: xml.Element):

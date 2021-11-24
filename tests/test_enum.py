@@ -2,8 +2,8 @@
 
 import xml.etree.ElementTree as xml
 
-from gladiator.parser.enum import parse_required_enums
-from gladiator.parser.feature import (
+from gladiator.parse.enum import parse_required_enums
+from gladiator.parse.feature import (
     get_feature_requirements,
     Feature,
     FeatureApi,

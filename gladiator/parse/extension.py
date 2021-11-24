@@ -5,7 +5,7 @@ import xml.etree.ElementTree as xml
 
 import attr
 
-from gladiator.parser.feature import (
+from gladiator.parse.feature import (
     apply_requirements,
     FeatureApi,
     FeatureVersion,

@@ -2,8 +2,8 @@
 
 import xml.etree.ElementTree as xml
 
-from gladiator.parser.feature import FeatureApi
-from gladiator.parser.extension import parse_required_extensions
+from gladiator.parse.feature import FeatureApi
+from gladiator.parse.extension import parse_required_extensions
 
 
 def test_generate_extensions(spec: xml.Element):
