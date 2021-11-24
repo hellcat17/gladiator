@@ -52,7 +52,7 @@ def _parse_enum(node: xml.Element, groups: Mapping[str, Iterable[xml.Element]]):
     return Enum(name=name, is_bitmask=(type_ == "bitmask"), values=values)
 
 
-def get_required_enums(
+def parse_required_enums(
     required_enums: Iterable[str],
     enums: Iterable[xml.Element],
 ):

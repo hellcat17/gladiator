@@ -1,9 +1,8 @@
 """Test enum definition parsing."""
 
-from typing import Iterable
 import xml.etree.ElementTree as xml
 
-from gladiator.parser.enum import get_required_enums
+from gladiator.parser.enum import parse_required_enums
 from gladiator.parser.feature import (
     get_feature_requirements,
     Feature,
@@ -37,7 +36,7 @@ def _collect_required(spec: xml.Element):
 
 def test_parse_enums(spec: xml.Element):
     candidates = tuple(_get_enum_nodes(spec))
-    all_enums = tuple(get_required_enums(_collect_required(spec), candidates))
+    all_enums = tuple(parse_required_enums(_collect_required(spec), candidates))
     attrib_mask = next(e for e in all_enums if e.name == "AttribMask")
     clbuf_mask = next(e for e in all_enums if e.name == "ClearBufferMask")
 
