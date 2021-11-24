@@ -1,6 +1,5 @@
 """Test feature definition parsing."""
 
-from typing import List
 import xml.etree.ElementTree as xml
 
 import pytest
