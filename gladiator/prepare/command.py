@@ -67,7 +67,6 @@ class PreparedImplementation:
 class PreparedCommand:
     original_name: str  #: as defined in OpenGL spec
     name: str
-    namespace: str
     type_: CommandType
     implementation: PreparedImplementation
 
@@ -129,7 +128,6 @@ def prepare_commands(
         yield command.name, PreparedCommand(
             original_name=command.name,
             name=command.name,
-            namespace="gl",
             type_=CommandType.DEFAULT,
             implementation=_make_default_implementation(command, prepared_enums),
         )
