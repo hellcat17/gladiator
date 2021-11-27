@@ -5,9 +5,11 @@ from typing import Iterable, Mapping, Optional, Union
 
 import attr
 
-from gladiator.optional import OptionalValue
 from gladiator.parse.command import Command, Type
 from gladiator.prepare.enum import PreparedEnum
+from gladiator.prepare.style import transform_symbol
+from gladiator.optional import OptionalValue
+from gladiator.options import Options
 
 
 class CommandType(Enum):
@@ -117,7 +119,9 @@ def _make_default_implementation(
 
 
 def prepare_commands(
-    commands: Iterable[Command], prepared_enums: Mapping[str, PreparedEnum]
+    commands: Iterable[Command],
+    prepared_enums: Mapping[str, PreparedEnum],
+    options: Options,
 ):
     """Prepare the given commands for use as references and in templates. The
     given enums are used to construct type references. Yields tuples mapping the
@@ -127,7 +131,9 @@ def prepare_commands(
     for command in commands:
         yield command.name, PreparedCommand(
             original_name=command.name,
-            name=command.name,
             type_=CommandType.DEFAULT,
             implementation=_make_default_implementation(command, prepared_enums),
+            name=transform_symbol(
+                command.name, options.function_case, options.omit_prefix
+            ),
         )

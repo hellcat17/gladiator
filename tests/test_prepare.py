@@ -5,6 +5,7 @@ from typing import List
 import xml.etree.ElementTree as xml
 
 import pytest
+from gladiator.options import Options
 
 from gladiator.parse.enum import parse_required_enums
 from gladiator.parse.command import parse_required_commands
@@ -28,7 +29,7 @@ def _get_enum_nodes(spec: xml.Element):
 def test_prepare_enum(spec: xml.Element):
     candidates = tuple(_get_enum_nodes(spec))
     clbuf_mask = next(parse_required_enums(["GL_DEPTH_BUFFER_BIT"], candidates))
-    clbuf_mask = next(prepare_enums([clbuf_mask]))[1]
+    clbuf_mask = next(prepare_enums([clbuf_mask], Options()))[1]
 
     assert clbuf_mask.is_bitmask
     assert "0x00000100" in [e.value for e in clbuf_mask.values]
@@ -45,9 +46,9 @@ def _get_commands_root(spec: xml.Element):
 def test_prepare_command(spec: xml.Element):
     candidates = tuple(_get_enum_nodes(spec))
     enums = tuple(parse_required_enums(["GL_DEPTH_BUFFER_BIT"], candidates))
-    enums = dict(prepare_enums(enums))
+    enums = dict(prepare_enums(enums, Options()))
     commands = tuple(parse_required_commands(["glClear"], _get_commands_root(spec)))
-    gl_clear = dict(prepare_commands(commands, enums))["glClear"]
+    gl_clear = dict(prepare_commands(commands, enums, Options()))["glClear"]
 
     assert gl_clear.type_ == CommandType.DEFAULT
     assert gl_clear.implementation.return_type.low_level == "void"
@@ -74,11 +75,11 @@ def _load_feature(feature, spec):
     c_root = _get_commands_root(spec)
     requirements = get_feature_requirements(feature, f_nodes)
     enums = tuple(parse_required_enums(tuple(requirements.enums.keys()), e_nodes))
-    enums = dict(prepare_enums(enums))
+    enums = dict(prepare_enums(enums, Options()))
     commands = tuple(
         parse_required_commands(tuple(requirements.commands.keys()), c_root)
     )
-    commands = dict(prepare_commands(commands, enums))
+    commands = dict(prepare_commands(commands, enums, Options()))
     return prepare_feature_levels(feature.api, requirements, commands)
 
 

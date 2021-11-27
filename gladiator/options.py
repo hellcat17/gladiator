@@ -60,27 +60,27 @@ def _enum(which: StringToEnumMixin):
 @attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True)
 class Options:
     # code style
-    enum_case: Case
-    function_case: Case
-    enum_value_case: Case
-    omit_prefix: bool
+    enum_case: Case = Case.INITIAL
+    function_case: Case = Case.INITIAL
+    enum_value_case: Case = Case.INITIAL
+    omit_prefix: bool = False
 
     # feature levels
-    apis: Iterable[FeatureApi]
-    versions: Iterable[FeatureVersion]
-    intersect_features: bool
+    apis: Iterable[FeatureApi] = ()
+    versions: Iterable[FeatureVersion] = ()
+    intersect_features: bool = False
 
     # semantics
-    scope: Scope
-    enum_namespace: Optional[str]
-    loader_or_class_namespace: Optional[str]
-    loader_or_class_name_template: Optional[str]  #: {api} {major} {minor}
+    scope: Scope = Scope.GLOBAL
+    enum_namespace: Optional[str] = None
+    loader_or_class_namespace: Optional[str] = None
+    loader_or_class_name_template: Optional[str] = None  #: {api} {major} {minor}
 
     # misc
-    generate_resource_wrappers: bool
-    resource_wrapper_namespace: Optional[str]
-    template_overrides_dir: Optional[Path]
-    output: Optional[Path]
+    generate_resource_wrappers: bool = False
+    resource_wrapper_namespace: Optional[str] = None
+    template_overrides_dir: Optional[Path] = None
+    output: Optional[Path] = None
 
 
 def make_argument_parser():
@@ -92,19 +92,19 @@ def make_argument_parser():
     style.add_argument(
         "--enum-case",
         type=_enum(Case),
-        default=Case.SNAKE_CASE,
+        default=Case.INITIAL,
         help=Case.options(),
     )
     style.add_argument(
         "--function-case",
         type=_enum(Case),
-        default=Case.SNAKE_CASE,
+        default=Case.INITIAL,
         help=Case.options(),
     )
     style.add_argument(
         "--enum-value-case",
         type=_enum(Case),
-        default=Case.SNAKE_CASE,
+        default=Case.INITIAL,
         help=Case.options(),
     )
     style.add_argument(
