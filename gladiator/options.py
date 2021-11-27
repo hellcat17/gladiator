@@ -2,12 +2,13 @@
 
 from enum import Enum
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Optional, Sequence
 
 import attr
 
 from configargparse import ArgParser, YAMLConfigFileParser, ArgumentTypeError
 
+from gladiator.generate.templates import TemplateFiles
 from gladiator.mixins import CannotConvertToEnum, StringToEnumMixin
 from gladiator.parse.feature import FeatureApi, FeatureVersion
 
@@ -59,6 +60,8 @@ def _enum(which: StringToEnumMixin):
 
 @attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True)
 class Options:
+    spec_file: Path = Path(__file__).parent.parent / "tests" / "resources" / "gl.xml"
+
     # code style
     enum_case: Case = Case.INITIAL
     function_case: Case = Case.INITIAL
@@ -66,9 +69,8 @@ class Options:
     omit_prefix: bool = False
 
     # feature levels
-    apis: Iterable[FeatureApi] = ()
-    versions: Iterable[FeatureVersion] = ()
-    intersect_features: bool = False
+    api: Sequence[FeatureApi] = ()
+    version: Sequence[FeatureVersion] = ()
 
     # semantics
     scope: Scope = Scope.GLOBAL
@@ -85,7 +87,11 @@ class Options:
 
 def make_argument_parser():
     """Define the CLI."""
-    cli = ArgParser(config_file_parser_class=YAMLConfigFileParser, add_help=True)
+    cli = ArgParser(
+        config_file_parser_class=YAMLConfigFileParser,
+        add_help=True,
+        prog="python3 -m gladiator",
+    )
     cli.add_argument("--config-file", is_config_file=True)
 
     style = cli.add_argument_group("Style options")
@@ -116,11 +122,16 @@ def make_argument_parser():
 
     levels = cli.add_argument_group("Feature level options")
     levels.add_argument(
+        "--spec-file",
+        required=True,
+        help="OpenGL spec file path (https://github.com/KhronosGroup/OpenGL-Registry/blob/main/xml/gl.xml)",
+    )
+    levels.add_argument(
         "--api",
         type=_enum(FeatureApi),
         required=True,
         nargs="+",
-        help=FeatureApi.options(),
+        help=f"specifying multiple intersects the features {FeatureApi.options()}",
     )
     levels.add_argument(
         "--version",
@@ -128,12 +139,6 @@ def make_argument_parser():
         required=True,
         nargs="+",
         help="versions for the given APIs (format: <major>.<minor>)",
-    )
-    levels.add_argument(
-        "--intersect-features",
-        action="store_true",
-        default=False,
-        help="collect least common denominator among the specified APIs",
     )
 
     sem = cli.add_argument_group("Semantic options")
@@ -171,7 +176,7 @@ def make_argument_parser():
         "--template-overrides-dir",
         type=Path,
         default=None,
-        help="dir containing files partially or fully overriding default templates",
+        help=f"dir containing files partially or fully overriding default templates (can contain: {TemplateFiles.overrides()})",
     )
     misc.add_argument(
         "--output",
