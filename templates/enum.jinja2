@@ -1,0 +1,24 @@
+{#
+
+Context
+--------------------------------
+enum (gladiator.prepare.enum.PreparedEnum): Enum to render
+
+Globals
+--------------------------------
+options (gladiator.options.Options): Merged CLI and config file options
+constants (gladiator.generate.constants.Constants): Constants for shared use
+templates (gladiator.generate.templates.TemplateFiles): Template file paths
+
+#}
+
+enum class {{ enum.name }} : unsigned int {
+	{% for member in enum.values %}
+		{{ member.name }} = {{ member.value }},
+	{% endfor %}
+};
+
+{% if enum.is_bitmask %}
+	{% include "util/enable_bitmask_operators.jinja2" %}
+{% endif %}
+

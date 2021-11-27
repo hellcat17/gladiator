@@ -83,6 +83,7 @@ class Options:
     resource_wrapper_namespace: Optional[str] = None
     template_overrides_dir: Optional[Path] = None
     output: Optional[Path] = None
+    config_file: Optional[str] = None
 
 
 def make_argument_parser():
@@ -92,7 +93,7 @@ def make_argument_parser():
         add_help=True,
         prog="python3 -m gladiator",
     )
-    cli.add_argument("--config-file", is_config_file=True)
+    cli.add_argument("--config-file", is_config_file=True, default=None)
 
     style = cli.add_argument_group("Style options")
     style.add_argument(

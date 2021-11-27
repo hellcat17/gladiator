@@ -1,0 +1,21 @@
+{#
+
+Context
+--------------------------------
+enums (Iterable[gladiator.prepare.enum.PreparedEnum]): Enums to render
+
+Globals
+--------------------------------
+options (gladiator.options.Options): Merged CLI and config file options
+constants (gladiator.generate.constants.Constants): Constants for shared use
+templates (gladiator.generate.templates.TemplateFiles): Template file paths
+
+#}
+
+namespace {{ options.enum_namespace or constants.default_namespace }} {
+	{% include "util/scoped_enum_bitfield.jinja2" %}
+
+	{% for enum in enums %}
+		{% include templates.ENUM.value %}
+	{% endfor %}
+}
