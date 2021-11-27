@@ -26,7 +26,7 @@ class InvalidVersion(Exception):
         super().__init__(f"Cannot parse feature version '{version}'")
 
 
-@attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True)
+@attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True, str=False)
 class FeatureVersion:
     """An OpenGL feature version."""
 
@@ -41,13 +41,19 @@ class FeatureVersion:
         except (IndexError, ValueError) as exc:
             raise InvalidVersion(value) from exc
 
+    def __str__(self):
+        return f"{self.major}.{self.minor}"
 
-@attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True)
+
+@attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True, str=False)
 class Feature:
     """An OpenGL feature."""
 
     api: FeatureApi
     version: FeatureVersion
+
+    def __str__(self):
+        return f"{self.api.value} {self.version}"
 
 
 RequirementMapping = MutableMapping[str, FeatureVersion]
@@ -59,6 +65,7 @@ class Requirements:
 
     enums: RequirementMapping
     commands: RequirementMapping
+    is_merged = False
 
 
 def is_compatible(feature: Feature, other: Feature):

@@ -14,6 +14,7 @@ class PreparedFeatureLevel:
     api: FeatureApi
     version: FeatureVersion
     commands: Iterable[PreparedCommand]
+    is_merged: bool
 
     def __lt__(self, other):
         if isinstance(other, PreparedFeatureLevel):
@@ -25,6 +26,28 @@ class PreparedFeatureLevel:
         raise NotImplementedError()
 
 
+def _determine_levels(
+    api: FeatureApi,
+    requirements: Requirements,
+    prepared_commands: Mapping[str, PreparedCommand],
+):
+    levels: DefaultDict[Feature, List[PreparedCommand]] = defaultdict(list)
+    for command, version in requirements.commands.items():
+        feature = Feature(api=api, version=version)
+        levels[feature].append(prepared_commands[command])
+    return levels
+
+
+def _prepare_levels(levels: Mapping[Feature, List[PreparedCommand]]):
+    for feature, commands in levels.items():
+        yield PreparedFeatureLevel(
+            api=feature.api,
+            version=feature.version,
+            commands=commands,
+            is_merged=False,
+        )
+
+
 def prepare_feature_levels(
     api: FeatureApi,
     requirements: Requirements,
@@ -33,18 +56,17 @@ def prepare_feature_levels(
     """Assign commands to the features that first introduced them and link them
     to already prepared commands.
     """
-    features: DefaultDict[Feature, List[PreparedCommand]] = defaultdict(list)
-
-    for command, version in requirements.commands.items():
-        feature = Feature(api=api, version=version)
-        features[feature].append(prepared_commands[command])
-
-    prepped: List[PreparedFeatureLevel] = []
-    for feature, commands in features.items():
-        prepped.append(
+    # we don't distinct between feature levels when multiple APIs were intersected
+    if requirements.is_merged:
+        return [
             PreparedFeatureLevel(
-                api=feature.api, version=feature.version, commands=commands
+                api=api,
+                version=FeatureVersion(major=0, minor=0),
+                commands=prepared_commands.values(),
+                is_merged=True,
             )
-        )
+        ]
 
-    return sorted(prepped)
+    return sorted(
+        _prepare_levels(_determine_levels(api, requirements, prepared_commands))
+    )
