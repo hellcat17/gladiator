@@ -15,6 +15,7 @@ from gladiator.parse.feature import FeatureApi, FeatureVersion
 class Case(StringToEnumMixin, Enum):
     """All supported code casings."""
 
+    INITIAL = "initial"
     SNAKE_CASE = "snake_case"
     CAMEL_CASE = "camelCase"
     PASCAL_CASE = "PascalCase"
