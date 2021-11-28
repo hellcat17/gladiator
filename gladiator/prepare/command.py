@@ -1,6 +1,7 @@
 """Prepare OpenGL commands for use in templates."""
 
 from enum import auto, Enum
+from pathlib import Path
 from typing import Iterable, Mapping, Optional, Union
 
 import attr
@@ -73,9 +74,22 @@ class PreparedCommand:
     implementation: PreparedImplementation
 
 
+_TYPE_TRANSLATIONS = dict(
+    t.split(",")
+    for t in (Path(__file__).parent.parent.parent / "data" / "type_translations")
+    .read_text(encoding="utf-8")
+    .split("\n")
+    if t
+)
+
+
+def _translate_low_level_type(low_level: str):
+    return _TYPE_TRANSLATIONS.get(low_level, low_level)
+
+
 def _make_type_reference(target: Type, prepared_enums: Mapping[str, PreparedEnum]):
     return TypeReference(
-        low_level=target.low_level,
+        low_level=_translate_low_level_type(target.low_level),
         front_modifiers=target.front_modifiers,
         back_modifiers=target.back_modifiers,
         high_level=OptionalValue(target.high_level)

@@ -11,7 +11,7 @@
 {# gladiator.parse.command.Type #}
 {%- macro lowlevel_typeref(type) -%}
 	{%- call with_modifiers(type) -%}
-		{%- if type.low_level != "void" -%}
+		{%- if type.low_level in opengl_types -%}
 			::{{ constants.type_namespace }}::
 		{%- endif -%}
 

@@ -1,8 +1,18 @@
 """Transform function and enum names according to the preferred style options."""
 
+from pathlib import Path
 from typing import Sequence
 
 from gladiator.options import Case
+
+
+_RESERVED_KEYWORDS = [
+    t
+    for t in (Path(__file__).parent.parent.parent / "data" / "cpp_keywords")
+    .read_text(encoding="utf-8")
+    .split("\n")
+    if t
+]
 
 
 def _get_word_boundaries(symbol: str):
@@ -57,6 +67,12 @@ def _apply_case(words: Sequence[str], case: Case):
     return "".join(words)
 
 
+def _resolve_conflicts(symbol: str):
+    while symbol in _RESERVED_KEYWORDS:
+        symbol = f"{symbol}_"
+    return symbol
+
+
 def transform_symbol(symbol: str, case: Case, omit_gl: bool):
     """Transform the given symbol according to the provided style options."""
     if not symbol:
@@ -65,4 +81,6 @@ def transform_symbol(symbol: str, case: Case, omit_gl: bool):
     if case == Case.INITIAL:
         return _omit_gl_str(symbol) if omit_gl else symbol
 
-    return _apply_case(_omit_gl(tuple(_split_into_words(symbol)), omit_gl), case)
+    return _resolve_conflicts(
+        _apply_case(_omit_gl(tuple(_split_into_words(symbol)), omit_gl), case)
+    )

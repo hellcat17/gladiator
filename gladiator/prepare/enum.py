@@ -1,5 +1,6 @@
 """Prepare OpenGL enums for use in templates."""
 
+from pathlib import Path
 from typing import Iterable
 
 import attr
@@ -23,7 +24,18 @@ class PreparedEnum:
     values: Iterable[PreparedEnumValue]
 
 
-# TODO: take options such as casing, style and namespace
+_NAME_OVERRIDES = dict(
+    t.split(",")
+    for t in (Path(__file__).parent.parent.parent / "data" / "enum_name_overrides")
+    .read_text(encoding="utf-8")
+    .split("\n")
+    if t
+)
+
+
+def _override(enum: str):
+    # NOTE: motivation is symbol conflicts after gl prefix is stripped
+    return _NAME_OVERRIDES.get(enum, enum)
 
 
 def prepare_enums(enums: Iterable[Enum], options: Options):
@@ -33,8 +45,10 @@ def prepare_enums(enums: Iterable[Enum], options: Options):
     for enum in enums:
         yield enum.name, PreparedEnum(
             original_name=enum.name,
-            name=transform_symbol(enum.name, options.enum_case, options.omit_prefix),
             is_bitmask=enum.is_bitmask,
+            name=transform_symbol(
+                _override(enum.name), options.enum_case, options.omit_prefix
+            ),
             values=[
                 PreparedEnumValue(
                     value=value.value,

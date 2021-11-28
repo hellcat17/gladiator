@@ -1,11 +1,12 @@
 """Template preparation and rendering."""
 
 from pathlib import Path
-from typing import Optional, TYPE_CHECKING
+from typing import Iterable, Optional, TYPE_CHECKING
 
 import jinja2
 
 from gladiator.generate.constants import Constants, TemplateFiles
+from gladiator.parse.type import TypeDefinition
 from gladiator.prepare.command import CommandType, ConversionType
 from gladiator.options import Scope
 
@@ -16,18 +17,21 @@ if TYPE_CHECKING:
 BASE_TEMPLATE_DIR = Path(__file__).parent.parent.parent / "templates"
 
 
-def _make_globals(options: "Options"):
+def _make_globals(options: "Options", types: Iterable[TypeDefinition]):
     return {
         "options": options,
         "constants": Constants,
         "templates": TemplateFiles,
+        "opengl_types": [t.name for t in types],
         "Scope": Scope,
         "CommandType": CommandType,
         "ConversionType": ConversionType,
     }
 
 
-def make_template_environment(overrides: Optional[Path], options: "Options"):
+def make_template_environment(
+    overrides: Optional[Path], options: "Options", types: Iterable[TypeDefinition]
+):
     """Make a Jinja2 environment with a file system loader respecting possible
     template overrides and predefined globals.
     """
@@ -35,7 +39,7 @@ def make_template_environment(overrides: Optional[Path], options: "Options"):
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(includes, followlinks=True), autoescape=True
     )
-    env.globals.update(_make_globals(options))
+    env.globals.update(_make_globals(options, types))
     return env
 
 

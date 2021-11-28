@@ -62,7 +62,6 @@ _KNOWN_LOW_LEVEL_TYPES = [
 
 
 def _locate_type(fragments: Sequence[str]):
-
     for index, fragment in enumerate(fragments):
         if fragment in _KNOWN_LOW_LEVEL_TYPES:
             return index

@@ -77,6 +77,7 @@ class Options:
     enum_namespace: Optional[str] = None
     loader_or_class_namespace: Optional[str] = None
     loader_or_class_name_template: Optional[str] = None  #: {api} {major} {minor}
+    no_type_translation: bool = False
 
     # misc
     generate_resource_wrappers: bool = False
@@ -159,6 +160,12 @@ def make_argument_parser():
         "--loader-or-class-name-template",
         default=None,
         help="name template of loaders or classes (placeholders if using single API: {api}, {major}, {minor})",
+    )
+    sem.add_argument(
+        "--no-type-translation",
+        action="store_true",
+        default=False,
+        help="translate OpenGL types (e.g. GLubyte) to cstdint defs (e.g. std::uint8_t)",
     )
 
     misc = cli.add_argument_group("Miscellaneous options")

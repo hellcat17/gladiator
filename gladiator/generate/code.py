@@ -58,7 +58,7 @@ def generate_code(
     enums: Iterable[PreparedEnum],
     levels: Iterable[PreparedFeatureLevel],
 ):
-    env = make_template_environment(options.template_overrides_dir, options)
+    env = make_template_environment(options.template_overrides_dir, options, types)
     with _Writer(options.output) as output:
         code = "".join(_generate_snippets(env, types, enums, levels))
         output.write(_compress(code))

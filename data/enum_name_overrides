@@ -1,0 +1,3 @@
+StencilOp,StencilOpAction
+LogicOp,LogicalPixelOp
+PolygonMode,RasterizationMode
