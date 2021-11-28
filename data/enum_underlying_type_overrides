@@ -1,1 +1,1 @@
-Boolean,unsigned char
+Boolean,std::uint8_t
