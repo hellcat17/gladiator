@@ -65,7 +65,7 @@ class Requirements:
 
     enums: RequirementMapping
     commands: RequirementMapping
-    is_merged = False
+    is_merged: bool = False
 
 
 def is_compatible(feature: Feature, other: Feature):

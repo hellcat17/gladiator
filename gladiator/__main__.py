@@ -86,7 +86,7 @@ def _merge_requirements(
         return requirements[0][0], requirements[0][1]
 
     first = requirements[0][1]
-    others = requirements[1:][1]
+    others = [t[1] for t in requirements[1:]]
     return _MERGED_FEATURE, Requirements(
         enums=dict(_merge_enums(first, others)),
         commands=dict(_merge_commands(first, others)),
