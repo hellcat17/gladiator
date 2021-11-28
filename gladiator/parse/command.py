@@ -52,15 +52,19 @@ def _strip_name_tag(param: xml.Element):
     return param
 
 
-KNOWN_LOW_LEVEL_TYPES = (
-    Path("data/low_level_types").read_text(encoding="utf-8").split("\n")
-)
+_KNOWN_LOW_LEVEL_TYPES = [
+    t
+    for t in (Path(__file__).parent.parent.parent / "data" / "low_level_types")
+    .read_text(encoding="utf-8")
+    .split("\n")
+    if t
+]
 
 
 def _locate_type(fragments: Sequence[str]):
 
     for index, fragment in enumerate(fragments):
-        if fragment in KNOWN_LOW_LEVEL_TYPES:
+        if fragment in _KNOWN_LOW_LEVEL_TYPES:
             return index
     return -1
 

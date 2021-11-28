@@ -1,0 +1,45 @@
+{% from "util/type_reference.jinja2" import lowlevel_typeref, highlevel_typeref %}
+{% from "util/resolve.jinja2" import resolve %}
+
+{%- macro _cast(action, to_lowlevel) -%}
+	{%- if action.to.high_level -%}
+		{%- if to_lowlevel -%}
+			{%- set to = lowlevel_typeref(action.to) -%}
+		{%- else -%}
+			{%- set to = highlevel_typeref(action.to) -%}
+		{%- endif -%}
+
+		{%- if action.to.back_modifiers and "*" in action.to.back_modifiers -%}
+			{%- set cast_type = resolve(constants.detail_namespace, "sized_ptr_cast") -%}
+		{%- else -%}
+			{%- set cast_type = "static_cast" -%}
+		{%- endif -%}
+		{{ cast_type }}<{{ to }}>({{ action.param }})
+	{%- else -%}
+		{{ action.param }}
+	{%- endif -%}
+{%- endmacro -%}
+
+{%- macro _method(action) -%}
+	// not yet implemented
+{%- endmacro -%}
+
+{# gladiator.prepare.command.PreparedConversion #}
+{%- macro make_conversion(conv, to_lowlevel) -%}
+	{%- if conv.type_ == ConversionType.CAST -%}
+		{{ _cast(conv.action, to_lowlevel) }}
+	{%- else -%}
+		{{ _method(conv.action) }}
+	{%- endif -%}
+{%- endmacro -%}
+
+{# Iterable[gladiator.prepare.command.PreparedConversion] #}
+{%- macro convert_params(convs) -%}
+	{%- for conv in convs -%}
+		{{ make_conversion(conv, true) }}{% if not loop.last %},{% endif %}
+	{%- endfor -%}
+{%- endmacro -%}
+
+{%- macro convert_retval(impl) -%}
+	{{ make_conversion(impl.retval_conversion, false) }}
+{%- endmacro -%}

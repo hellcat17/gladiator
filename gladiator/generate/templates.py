@@ -6,6 +6,7 @@ from typing import Optional, TYPE_CHECKING
 import jinja2
 
 from gladiator.generate.constants import Constants, TemplateFiles
+from gladiator.prepare.command import CommandType, ConversionType
 from gladiator.options import Scope
 
 if TYPE_CHECKING:
@@ -21,6 +22,8 @@ def _make_globals(options: "Options"):
         "constants": Constants,
         "templates": TemplateFiles,
         "Scope": Scope,
+        "CommandType": CommandType,
+        "ConversionType": ConversionType,
     }
 
 

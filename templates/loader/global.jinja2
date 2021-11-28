@@ -1,8 +1,13 @@
-{% from "util/type_reference.jinja2" import lowlevel_typeref, lowlevel_params %}
+{% from "util/type_reference.jinja2" import lowlevel_typeref, lowlevel_params, highlevel_typeref, highlevel_params %}
+{% from "util/conversion.jinja2" import convert_params, convert_retval %}
 {% from "util/resolve.jinja2" import resolve %}
 
 {%- macro make_loader_name(level) -%}
 	{{ (options.loader_or_class_name_template or "load_{api}_{major}{minor}_functions").format(api=level.api.value, major=level.version.major, minor=level.version.minor) }}
+{%- endmacro -%}
+
+{%- macro resolve_underlying_func(name) -%}
+	{{ resolve(constants.detail_namespace, "_" + name) }}
 {%- endmacro -%}
 
 {% for level in levels %}
@@ -40,14 +45,36 @@ bool {{ loaderName }}(const {{ resolve(constants.detail_namespace, "loadProcAddr
 
 {% for command in level.commands %}
 	{% set name = command.original.name %}
-	{% set symbol = resolve(constants.detail_namespace, "_" + name) %}
+	{% set symbol = resolve_underlying_func(name) %}
 	{% set type = resolve(constants.detail_namespace, "_proc_" + name) %}
-	if (({{ symbol }} = static_cast<{{ type }}>(load("{{ name }}"))) == nullptr) return false;
+	if (({{ symbol }} = ({{ type }})(load("{{ name }}"))) == nullptr) return false;
 {% endfor %}
 
 return true;
 
 }
+
+{# type-safe wrappers for each command #}
+
+{% for command in level.commands %}
+	{% set underlying = resolve_underlying_func(command.original.name) %}
+
+	{% if command.type_ == CommandType.DEFAULT %}
+		{% set impl =  command.implementation%}
+		{% set rettype = highlevel_typeref(impl.return_type) %}
+		{% set params = highlevel_params(impl.params) %}
+		{% set returns_void = impl.return_type.low_level == "void" and not impl.return_type.back_modifiers %}
+
+		auto {{ command.name }}({{ params }}) -> {{ rettype }} {
+			{% if not returns_void %}const auto {{ impl.retval_temporary }} = {% endif -%}
+			{{ underlying }}({{ convert_params(impl.param_conversions) }});
+
+			{% if not returns_void %}
+				return {{ convert_retval(impl) }};
+			{% endif %}
+		}
+	{% endif %}
+{% endfor %}
 
 }
 

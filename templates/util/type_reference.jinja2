@@ -1,18 +1,43 @@
-{%- macro lowlevel_typeref(type) -%}
+{%- macro with_modifiers(type) -%}
 	{%- if type.front_modifiers -%}
 		{{ type.front_modifiers }}{{ " " }}
 	{%- endif -%}
-	{%- if type.low_level != "void" -%}
-		::{{ constants.type_namespace }}::
-	{%- endif -%}
 
-	{{ type.low_level }}
+	{{ caller() }}
 
 	{%- if type.back_modifiers -%}{{ " " }}{{ type.back_modifiers }}{%- endif -%}
+{%- endmacro -%}
+
+{# gladiator.parse.command.Type #}
+{%- macro lowlevel_typeref(type) -%}
+	{%- call with_modifiers(type) -%}
+		{%- if type.low_level != "void" -%}
+			::{{ constants.type_namespace }}::
+		{%- endif -%}
+
+		{{ type.low_level }}
+	{%- endcall -%}
 {%- endmacro -%}
 
 {%- macro lowlevel_params(params) -%}
 	{%- for param in params -%}
 		{{ lowlevel_typeref(param.type_) }}{% if not loop.last %},{% endif %}
+	{%- endfor -%}
+{%- endmacro -%}
+
+{# gladiator.prepare.command.TypeReference #}
+{%- macro highlevel_typeref(type) -%}
+	{%- if type.high_level -%}
+		{%- call with_modifiers(type) -%}
+			::{{ options.enum_namespace or constants.default_namespace }}::{{ type.high_level.name }}
+		{%- endcall -%}
+	{%- else -%}
+		{{ lowlevel_typeref(type) }}
+	{%- endif -%}
+{%- endmacro -%}
+
+{%- macro highlevel_params(params) -%}
+	{%- for param in params -%}
+		{{ highlevel_typeref(param.type_) }} {{ param.name }}{% if not loop.last %},{% endif %}
 	{%- endfor -%}
 {%- endmacro -%}
