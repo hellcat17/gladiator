@@ -4,14 +4,13 @@ from pathlib import Path
 import re
 from sys import stdout
 from typing import Iterable, Optional
+from gladiator.parse.type import TypeDefinition
 
 from gladiator.prepare.enum import PreparedEnum
 from gladiator.options import Options
-from gladiator.generate.templates import (
-    make_template_environment,
-    render_template,
-    TemplateFiles,
-)
+from gladiator.prepare.feature import PreparedFeatureLevel
+from gladiator.generate.constants import TemplateFiles
+from gladiator.generate.templates import make_template_environment, render_template
 
 
 class _Writer:
@@ -37,19 +36,29 @@ _REMOVE_LEADING_WHITESPACE_PATTERN = re.compile("^[\t ]+", re.MULTILINE)
 
 
 def _compress(code: str):
-    return re.sub(
-        _REMOVE_REPEATING_NEWLINES_PATTERN,
-        "\n",
-        re.sub(_REMOVE_LEADING_WHITESPACE_PATTERN, "", code),
+    return _REMOVE_REPEATING_NEWLINES_PATTERN.sub(
+        "\n", _REMOVE_LEADING_WHITESPACE_PATTERN.sub("", code)
     )
 
 
-def generate_code(options: Options, enums: Iterable[PreparedEnum]):
-    with _Writer(options.output) as output:
-        env = make_template_environment(options.template_overrides_dir, options)
+def _generate_snippets(
+    env,
+    types: Iterable[TypeDefinition],
+    enums: Iterable[PreparedEnum],
+    levels: Iterable[PreparedFeatureLevel],
+):
+    yield render_template(env, TemplateFiles.TYPES.value, types=types)
+    yield render_template(env, TemplateFiles.ENUM_COLLECTION.value, enums=enums)
+    yield render_template(env, TemplateFiles.LOADER.value, levels=levels)
 
-        output.write(
-            _compress(
-                render_template(env, TemplateFiles.ENUM_COLLECTION.value, enums=enums)
-            )
-        )
+
+def generate_code(
+    options: Options,
+    types: Iterable[TypeDefinition],
+    enums: Iterable[PreparedEnum],
+    levels: Iterable[PreparedFeatureLevel],
+):
+    env = make_template_environment(options.template_overrides_dir, options)
+    with _Writer(options.output) as output:
+        code = "".join(_generate_snippets(env, types, enums, levels))
+        output.write(_compress(code))

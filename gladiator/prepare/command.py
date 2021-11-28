@@ -67,7 +67,7 @@ class PreparedImplementation:
 
 @attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True)
 class PreparedCommand:
-    original_name: str  #: as defined in OpenGL spec
+    original: Command
     name: str
     type_: CommandType
     implementation: PreparedImplementation
@@ -130,7 +130,7 @@ def prepare_commands(
 
     for command in commands:
         yield command.name, PreparedCommand(
-            original_name=command.name,
+            original=command,
             type_=CommandType.DEFAULT,
             implementation=_make_default_implementation(command, prepared_enums),
             name=transform_symbol(

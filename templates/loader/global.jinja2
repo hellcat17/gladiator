@@ -1,0 +1,54 @@
+{% from "util/type_reference.jinja2" import lowlevel_typeref, lowlevel_params %}
+{% from "util/resolve.jinja2" import resolve %}
+
+{%- macro make_loader_name(level) -%}
+	{{ (options.loader_or_class_name_template or "load_{api}_{major}{minor}_functions").format(api=level.api.value, major=level.version.major, minor=level.version.minor) }}
+{%- endmacro -%}
+
+{% for level in levels %}
+
+{# procedure type definitions and storage #}
+
+namespace {{ constants.detail_namespace }} {
+
+{% for command in level.commands %}
+	{% set f = command.original %}
+	using _proc_{{ f.name }} = std::add_pointer<{{ lowlevel_typeref(f.return_type) }}({{ lowlevel_params(f.params) }})>::type;
+	_proc_{{ f.name }} _{{ f.name }} = nullptr;
+{% endfor %}
+
+using loadProcAddressFunc = std::add_pointer<void*(const char*)>::type;
+
+}
+
+{# loaders per level #}
+
+namespace {{ options.loader_or_class_namespace or constants.default_namespace }} {
+
+{% if level.is_merged %}
+	{% set loaderName = options.loader_or_class_name_template or "load_functions" %}
+{% else %}
+	{% set loaderName = make_loader_name(level) %}
+{% endif %}
+
+bool {{ loaderName }}(const {{ resolve(constants.detail_namespace, "loadProcAddressFunc") }} load) {
+
+{# load the functions of the previous version #}
+{% if loop.previtem %}
+	{{ make_loader_name(loop.previtem) }}(load);
+{% endif %}
+
+{% for command in level.commands %}
+	{% set name = command.original.name %}
+	{% set symbol = resolve(constants.detail_namespace, "_" + name) %}
+	{% set type = resolve(constants.detail_namespace, "_proc_" + name) %}
+	if (({{ symbol }} = static_cast<{{ type }}>(load("{{ name }}"))) == nullptr) return false;
+{% endfor %}
+
+return true;
+
+}
+
+}
+
+{% endfor %}

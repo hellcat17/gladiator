@@ -1,12 +1,12 @@
 """Template preparation and rendering."""
 
-from enum import Enum
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING
 
 import jinja2
 
-from gladiator.generate.constants import Constants
+from gladiator.generate.constants import Constants, TemplateFiles
+from gladiator.options import Scope
 
 if TYPE_CHECKING:
     from gladiator.options import Options
@@ -15,20 +15,12 @@ if TYPE_CHECKING:
 BASE_TEMPLATE_DIR = Path(__file__).parent.parent.parent / "templates"
 
 
-class TemplateFiles(Enum):
-    ENUM_COLLECTION = "enum_collection.jinja2"
-    ENUM = "enum.jinja2"
-
-    @classmethod
-    def overrides(cls):
-        return f"{', '.join(e.value for e in cls)}"
-
-
 def _make_globals(options: "Options"):
     return {
         "options": options,
         "constants": Constants,
         "templates": TemplateFiles,
+        "Scope": Scope,
     }
 
 

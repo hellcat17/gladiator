@@ -93,10 +93,10 @@ def test_prepare_feature(spec: xml.Element):
     assert _in_ascending_order(levels)
     # immediate mode still present when requesting a v1.1 profile
     lev_1_0 = next(l for l in levels if l.version.major == 1 and l.version.minor == 0)
-    assert "glColor3f" in [c.original_name for c in lev_1_0.commands]
+    assert "glColor3f" in [c.original.name for c in lev_1_0.commands]
 
     gl_3_1 = Feature(api=FeatureApi.GL, version=FeatureVersion(major=3, minor=1))
     levels = _load_feature(gl_3_1, spec)
     # immediate mode not present anymore when requesting a v3.1 profile
     lev_3_1 = next(l for l in levels if l.version.major == 3 and l.version.minor == 1)
-    assert "glColor3f" not in [c.original_name for c in lev_3_1.commands]
+    assert "glColor3f" not in [c.original.name for c in lev_3_1.commands]

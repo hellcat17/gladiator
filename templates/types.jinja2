@@ -1,0 +1,26 @@
+{#
+
+Render low-level OpenGL type definitions.
+
+Context
+--------------------------------
+types (Iterable[gladiator.parse.type.TypeDefinition]): Statements to render
+
+Globals
+--------------------------------
+options (gladiator.options.Options): Merged CLI and config file options
+constants (gladiator.generate.constants.Constants): Constants for shared use
+templates (gladiator.generate.templates.TemplateFiles): Template file paths
+
+#}
+
+{% include "util/dependencies.jinja2" %}
+{% include "util/khrplatform.jinja2" %}
+
+namespace {{ constants.type_namespace }} {
+
+{% for type in types %}
+	{{ type.statement }}
+{% endfor %}
+
+}

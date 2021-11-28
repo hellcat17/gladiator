@@ -1,0 +1,21 @@
+{#
+
+Render a loader for each feature level.
+
+Context
+--------------------------------
+levels (Iterable[gladiator.prepare.feature.PreparedFeatureLevel]): Feature levels to render
+
+Globals
+--------------------------------
+options (gladiator.options.Options): Merged CLI and config file options
+constants (gladiator.generate.constants.Constants): Constants for shared use
+templates (gladiator.generate.templates.TemplateFiles): Template file paths
+
+#}
+
+{% if options.scope == Scope.GLOBAL %}
+	{% include "loader/global.jinja2" %}
+{% elif options.scope == Scope.OBJECT %}
+	{% include "loader/object.jinja2" %}
+{% endif %}

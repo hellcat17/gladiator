@@ -1,0 +1,3 @@
+{%- macro resolve() -%}
+	{% for arg in varargs %}::{{ arg }}{% endfor %}
+{%- endmacro -%}

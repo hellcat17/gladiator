@@ -8,7 +8,7 @@ import attr
 
 from configargparse import ArgParser, YAMLConfigFileParser, ArgumentTypeError
 
-from gladiator.generate.templates import TemplateFiles
+from gladiator.generate.constants import TemplateFiles
 from gladiator.mixins import CannotConvertToEnum, StringToEnumMixin
 from gladiator.parse.feature import FeatureApi, FeatureVersion
 
@@ -158,7 +158,7 @@ def make_argument_parser():
     sem.add_argument(
         "--loader-or-class-name-template",
         default=None,
-        help="name template of loaders or classes (placeholders: {api}, {major}, {minor})",
+        help="name template of loaders or classes (placeholders if using single API: {api}, {major}, {minor})",
     )
 
     misc = cli.add_argument_group("Miscellaneous options")

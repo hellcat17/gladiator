@@ -10,7 +10,7 @@ from gladiator.generate.code import generate_code
 from gladiator.parse.enum import parse_required_enums
 from gladiator.parse.command import parse_required_commands
 from gladiator.parse.type import get_type_definitions, TypeDefinition
-from gladiator.prepare.command import prepare_commands, PreparedCommand
+from gladiator.prepare.command import prepare_commands
 from gladiator.prepare.enum import prepare_enums, PreparedEnum
 from gladiator.prepare.feature import prepare_feature_levels, PreparedFeatureLevel
 from gladiator.options import make_argument_parser, Options
@@ -121,7 +121,6 @@ def _parse_definitions(spec_root: xml.Element, options: Options):
 class _ParseResult:
     types: Sequence[TypeDefinition]
     enums: Dict[str, PreparedEnum]
-    commands: Dict[str, PreparedCommand]
     feature_levels: Sequence[PreparedFeatureLevel]
 
 
@@ -134,7 +133,6 @@ def _parse_spec(spec_root: xml.Element, options: Options):
     return _ParseResult(
         types=types,
         enums=prepared_enums,
-        commands=prepared_commands,
         feature_levels=prepare_feature_levels(
             feature.api, requirements, prepared_commands
         ),
@@ -160,7 +158,9 @@ def cli(*args) -> int:
 
         spec_root = xml.parse(options.spec_file).getroot()
         result = _parse_spec(spec_root, options)
-        generate_code(options, result.enums.values())
+        generate_code(
+            options, result.types, result.enums.values(), result.feature_levels
+        )
 
         return 0
     except SystemExit as exc:

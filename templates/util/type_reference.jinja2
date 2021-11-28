@@ -1,0 +1,18 @@
+{%- macro lowlevel_typeref(type) -%}
+	{%- if type.front_modifiers -%}
+		{{ type.front_modifiers }}{{ " " }}
+	{%- endif -%}
+	{%- if type.low_level != "void" -%}
+		::{{ constants.type_namespace }}::
+	{%- endif -%}
+
+	{{ type.low_level }}
+
+	{%- if type.back_modifiers -%}{{ " " }}{{ type.back_modifiers }}{%- endif -%}
+{%- endmacro -%}
+
+{%- macro lowlevel_params(params) -%}
+	{%- for param in params -%}
+		{{ lowlevel_typeref(param.type_) }}{% if not loop.last %},{% endif %}
+	{%- endfor -%}
+{%- endmacro -%}
