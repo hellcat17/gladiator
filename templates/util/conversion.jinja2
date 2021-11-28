@@ -3,18 +3,24 @@
 
 {%- macro _cast(action, to_lowlevel) -%}
 	{%- if action.to.high_level -%}
-		{%- if to_lowlevel -%}
-			{%- set to = lowlevel_typeref(action.to) -%}
+		{%- set is_pointer = action.to.back_modifiers and "*" in action.to.back_modifiers -%}
+		{%- if not is_pointer and to_lowlevel -%}
+			{{ resolve(constants.detail_namespace, "to_underlying") }}({{ action.param }})
 		{%- else -%}
-			{%- set to = highlevel_typeref(action.to) -%}
-		{%- endif -%}
+			{%- if to_lowlevel -%}
+				{%- set to = lowlevel_typeref(action.to) -%}
+			{%- else -%}
+				{%- set to = highlevel_typeref(action.to) -%}
+			{%- endif -%}
 
-		{%- if action.to.back_modifiers and "*" in action.to.back_modifiers -%}
-			{%- set cast_type = resolve(constants.detail_namespace, "sized_ptr_cast") -%}
-		{%- else -%}
-			{%- set cast_type = "static_cast" -%}
+			{%- if is_pointer -%}
+				{%- set cast_type = resolve(constants.detail_namespace, "sized_ptr_cast") -%}
+			{%- else -%}
+				{%- set cast_type = "static_cast" -%}
+			{%- endif -%}
+
+			{{ cast_type }}<{{ to }}>({{ action.param }})
 		{%- endif -%}
-		{{ cast_type }}<{{ to }}>({{ action.param }})
 	{%- else -%}
 		{{ action.param }}
 	{%- endif -%}

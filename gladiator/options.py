@@ -165,7 +165,7 @@ def make_argument_parser():
         "--no-type-translation",
         action="store_true",
         default=False,
-        help="translate OpenGL types (e.g. GLubyte) to cstdint defs (e.g. std::uint8_t)",
+        help="do not translate OpenGL types (e.g. GLubyte) to cstdint defs (e.g. std::uint8_t)",
     )
 
     misc = cli.add_argument_group("Miscellaneous options")

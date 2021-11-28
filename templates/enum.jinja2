@@ -15,7 +15,7 @@ templates (gladiator.generate.templates.TemplateFiles): Template file paths
 {% if enum.original_name in constants.enum_underlying_type_overrides %}
 	{% set ut = constants.enum_underlying_type_overrides[enum.original_name] %}
 {% else %}
-	{% set ut = "unsigned int" %}
+	{% set ut = "std::uint32_t" %}
 {% endif %}
 
 enum class {{ enum.name }} : {{ ut }} {
