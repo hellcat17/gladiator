@@ -1,20 +1,13 @@
 """Constants for shared use in templates."""
 
 from enum import Enum
-from pathlib import Path
+
+from gladiator.resources import read_resource_file
 
 
 _ENUM_UT_OVERRIDES = [
     ov.split(",")
-    for ov in (
-        (
-            Path(__file__).parent.parent.parent
-            / "data"
-            / "enum_underlying_type_overrides"
-        )
-        .read_text(encoding="utf-8")
-        .split("\n")
-    )
+    for ov in read_resource_file("data/enum_underlying_type_overrides").split("\n")
     if ov
 ]
 

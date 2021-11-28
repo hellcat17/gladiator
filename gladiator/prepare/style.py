@@ -1,17 +1,13 @@
 """Transform function and enum names according to the preferred style options."""
 
-from pathlib import Path
 from typing import Sequence
 
 from gladiator.options import Case
+from gladiator.resources import read_resource_file
 
 
 _RESERVED_KEYWORDS = [
-    t
-    for t in (Path(__file__).parent.parent.parent / "data" / "cpp_keywords")
-    .read_text(encoding="utf-8")
-    .split("\n")
-    if t
+    t for t in read_resource_file("data/cpp_keywords").split("\n") if t
 ]
 
 

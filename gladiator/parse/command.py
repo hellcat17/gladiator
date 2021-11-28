@@ -1,13 +1,13 @@
 """Parse OpenGL enum definitions required by feature levels."""
 
 from copy import copy
-from pathlib import Path
 from typing import Optional, Iterable, Sequence
 import xml.etree.ElementTree as xml
 
 import attr
 
 from gladiator.optional import OptionalValue
+from gladiator.resources import read_resource_file
 
 
 @attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True)
@@ -53,11 +53,7 @@ def _strip_name_tag(param: xml.Element):
 
 
 _KNOWN_LOW_LEVEL_TYPES = [
-    t
-    for t in (Path(__file__).parent.parent.parent / "data" / "low_level_types")
-    .read_text(encoding="utf-8")
-    .split("\n")
-    if t
+    t for t in read_resource_file("data/low_level_types").split("\n") if t
 ]
 
 

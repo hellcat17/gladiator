@@ -1,7 +1,6 @@
 """Prepare OpenGL commands for use in templates."""
 
 from enum import auto, Enum
-from pathlib import Path
 from typing import Iterable, Mapping, Optional, Union
 
 import attr
@@ -11,6 +10,7 @@ from gladiator.prepare.enum import PreparedEnum
 from gladiator.prepare.style import transform_symbol
 from gladiator.optional import OptionalValue
 from gladiator.options import Options
+from gladiator.resources import read_resource_file
 
 
 class CommandType(Enum):
@@ -75,11 +75,7 @@ class PreparedCommand:
 
 
 _TYPE_TRANSLATIONS = dict(
-    t.split(",")
-    for t in (Path(__file__).parent.parent.parent / "data" / "type_translations")
-    .read_text(encoding="utf-8")
-    .split("\n")
-    if t
+    t.split(",") for t in read_resource_file("data/type_translations").split("\n") if t
 )
 
 

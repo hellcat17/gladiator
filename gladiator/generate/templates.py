@@ -9,12 +9,13 @@ from gladiator.generate.constants import Constants, TemplateFiles
 from gladiator.parse.type import TypeDefinition
 from gladiator.prepare.command import CommandType, ConversionType
 from gladiator.options import Scope
+from gladiator.resources import BASE_RESOURCE_PATH
 
 if TYPE_CHECKING:
     from gladiator.options import Options
 
 
-BASE_TEMPLATE_DIR = Path(__file__).parent.parent.parent / "templates"
+BASE_TEMPLATE_DIR = BASE_RESOURCE_PATH / "templates"
 
 
 def _make_globals(options: "Options", types: Iterable[TypeDefinition]):

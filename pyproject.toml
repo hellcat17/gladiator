@@ -3,6 +3,8 @@ name = "gladiator"
 version = "0.1.0"
 description = "Generate type-safe OpenGL wrappers for C++"
 authors = ["hellcat17 <dodgehellcat17@outlook.com>"]
+packages = [{ include = "gladiator" }]
+include = ["resources/data/**", "resources/templates/**"]
 
 [tool.poetry.dependencies]
 python = "^3.9"

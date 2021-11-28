@@ -1,6 +1,5 @@
 """Prepare OpenGL enums for use in templates."""
 
-from pathlib import Path
 from typing import Iterable
 
 import attr
@@ -8,6 +7,7 @@ import attr
 from gladiator.parse.enum import Enum
 from gladiator.prepare.style import transform_symbol
 from gladiator.options import Options
+from gladiator.resources import read_resource_file
 
 
 @attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True)
@@ -26,9 +26,7 @@ class PreparedEnum:
 
 _NAME_OVERRIDES = dict(
     t.split(",")
-    for t in (Path(__file__).parent.parent.parent / "data" / "enum_name_overrides")
-    .read_text(encoding="utf-8")
-    .split("\n")
+    for t in read_resource_file("data/enum_name_overrides").split("\n")
     if t
 )
 
