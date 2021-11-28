@@ -17,6 +17,7 @@ class PreparedEnumValue:
 
 @attr.s(auto_attribs=True, kw_only=True, slots=True, frozen=True)
 class PreparedEnum:
+    original_name: str
     name: str
     is_bitmask: bool
     values: Iterable[PreparedEnumValue]
@@ -31,6 +32,7 @@ def prepare_enums(enums: Iterable[Enum], options: Options):
     """
     for enum in enums:
         yield enum.name, PreparedEnum(
+            original_name=enum.name,
             name=transform_symbol(enum.name, options.enum_case, options.omit_prefix),
             is_bitmask=enum.is_bitmask,
             values=[

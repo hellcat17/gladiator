@@ -12,7 +12,13 @@ templates (gladiator.generate.templates.TemplateFiles): Template file paths
 
 #}
 
-enum class {{ enum.name }} : unsigned int {
+{% if enum.original_name in constants.enum_underlying_type_overrides %}
+	{% set ut = constants.enum_underlying_type_overrides[enum.original_name] %}
+{% else %}
+	{% set ut = "unsigned int" %}
+{% endif %}
+
+enum class {{ enum.name }} : {{ ut }} {
 	{% for member in enum.values %}
 		{{ member.name }} = {{ member.value }},
 	{% endfor %}
