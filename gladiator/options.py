@@ -87,12 +87,35 @@ class Options:
     config_file: Optional[str] = None
 
 
+def add_feature_level_options(cli: ArgParser):
+    """Add feature level options to the given argument parser"""
+    cli.add_argument(
+        "--spec-file",
+        required=True,
+        help="OpenGL spec file path (https://github.com/KhronosGroup/OpenGL-Registry/blob/main/xml/gl.xml)",
+    )
+    cli.add_argument(
+        "--api",
+        type=_enum(FeatureApi),
+        required=True,
+        nargs="+",
+        help=f"specifying multiple intersects the features {FeatureApi.options()}",
+    )
+    cli.add_argument(
+        "--version",
+        type=_to_version,
+        required=True,
+        nargs="+",
+        help="versions for the given APIs (format: <major>.<minor>)",
+    )
+
+
 def make_argument_parser():
     """Define the CLI."""
     cli = ArgParser(
         config_file_parser_class=YAMLConfigFileParser,
         add_help=True,
-        prog="python3 -m gladiator",
+        prog="python -m gladiator",
     )
     cli.add_argument("--config-file", is_config_file=True, default=None)
 
@@ -123,25 +146,7 @@ def make_argument_parser():
     )
 
     levels = cli.add_argument_group("Feature level options")
-    levels.add_argument(
-        "--spec-file",
-        required=True,
-        help="OpenGL spec file path (https://github.com/KhronosGroup/OpenGL-Registry/blob/main/xml/gl.xml)",
-    )
-    levels.add_argument(
-        "--api",
-        type=_enum(FeatureApi),
-        required=True,
-        nargs="+",
-        help=f"specifying multiple intersects the features {FeatureApi.options()}",
-    )
-    levels.add_argument(
-        "--version",
-        type=_to_version,
-        required=True,
-        nargs="+",
-        help="versions for the given APIs (format: <major>.<minor>)",
-    )
+    add_feature_level_options(levels)
 
     sem = cli.add_argument_group("Semantic options")
     sem.add_argument(

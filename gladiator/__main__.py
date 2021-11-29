@@ -1,7 +1,7 @@
 """Gladiator's command-line interface."""
 
 import sys
-from typing import Dict, Sequence, Tuple
+from typing import Dict, Sequence
 import xml.etree.ElementTree as xml
 
 import attr
@@ -14,91 +14,14 @@ from gladiator.prepare.command import prepare_commands
 from gladiator.prepare.enum import prepare_enums, PreparedEnum
 from gladiator.prepare.feature import prepare_feature_levels, PreparedFeatureLevel
 from gladiator.options import make_argument_parser, Options
-from gladiator.parse.feature import (
-    Feature,
-    FeatureApi,
-    FeatureVersion,
-    Requirements,
-    get_feature_requirements,
-    _parse_feature,
-)
-
-
-_MERGED_FEATURE = Feature(api=FeatureApi.GL, version=FeatureVersion(major=0, minor=0))
-
-
-def _get_feature_nodes(spec_root: xml.Element):
-    for node in spec_root:
-        if node.tag == "feature":
-            yield node
-
-
-def _get_valid_features(feature_nodes):
-    for node in feature_nodes:
-        yield _parse_feature(node)
-
-
-def _check_requirements(req, nodes, feature):
-    if not req.enums or not req.commands:
-        valid = ", ".join(str(f) for f in _get_valid_features(nodes))
-        raise SystemExit(f"ERROR: {feature} does not exist in the spec. Valid: {valid}")
-
-
-def _get_all_requirements(spec_root: xml.Element, options: Options):
-    feature_nodes = tuple(_get_feature_nodes(spec_root))
-    for api, version in zip(options.api, options.version):
-        feature = Feature(api=api, version=version)
-        requirements = get_feature_requirements(feature, feature_nodes)
-        _check_requirements(requirements, feature_nodes, feature)
-        yield feature, requirements
-
-
-def _is_enum_shared(enum: str, requirements: Sequence[Requirements]):
-    for req in requirements:
-        if enum not in req.enums:
-            return False
-    return True
-
-
-def _is_command_shared(cmd: str, requirements: Sequence[Requirements]):
-    for req in requirements:
-        if cmd not in req.commands:
-            return False
-    return True
-
-
-def _merge_enums(first, others):
-    for enum, level in first.enums.items():
-        if _is_enum_shared(enum, others):
-            yield enum, level
-
-
-def _merge_commands(first, others):
-    for cmd, level in first.commands.items():
-        if _is_command_shared(cmd, others):
-            yield cmd, level
-
-
-def _merge_requirements(
-    requirements: Sequence[Tuple[Feature, Requirements]]
-) -> Tuple[Feature, Requirements]:
-    if len(requirements) == 1:
-        return requirements[0][0], requirements[0][1]
-
-    first = requirements[0][1]
-    others = [t[1] for t in requirements[1:]]
-    return _MERGED_FEATURE, Requirements(
-        enums=dict(_merge_enums(first, others)),
-        commands=dict(_merge_commands(first, others)),
-        is_merged=True,
-    )
+from gladiator.tools.compare import get_all_feature_requirements, merge_requirements
 
 
 def _parse_definitions(spec_root: xml.Element, options: Options):
     types = enums = commands = ()
     enum_nodes = []  # NOTE: unfortunately, no common root
-    feature, requirements = _merge_requirements(
-        tuple(_get_all_requirements(spec_root, options))
+    feature, requirements = merge_requirements(
+        tuple(get_all_feature_requirements(spec_root, options.api, options.version))
     )
 
     for node in spec_root:
@@ -146,25 +69,19 @@ def _check_preconditions(options: Options):
 
 def cli(*args) -> int:
     """Public CLI."""
-    parser = make_argument_parser()
-    if len(args) == 0:
-        parser.print_usage()
-        return 1
-
     try:
-        parsed_cli = parser.parse_args(args)
-        options = Options(**(parsed_cli.__dict__))
-        _check_preconditions(options)
-
-        spec_root = xml.parse(options.spec_file).getroot()
-        result = _parse_spec(spec_root, options)
-        generate_code(
-            options, result.types, result.enums.values(), result.feature_levels
-        )
-
-        return 0
+        parsed_cli = make_argument_parser().parse_args(args)
     except SystemExit as exc:
         return exc.code
+
+    options = Options(**(parsed_cli.__dict__))
+    _check_preconditions(options)
+
+    spec_root = xml.parse(options.spec_file).getroot()
+    result = _parse_spec(spec_root, options)
+    generate_code(options, result.types, result.enums.values(), result.feature_levels)
+
+    return 0
 
 
 if __name__ == "__main__":
