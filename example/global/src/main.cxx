@@ -41,12 +41,12 @@ auto run_example(SDL_Window* window) -> tl::expected<int, std::string> {
 			if (event.type == SDL_QUIT) {
 				return 0;
 			}
-
-			gl::clear_color(clear_r, clear_g, clear_b, 1);
-			gl::clear(gl::clear_buffer_mask::color_buffer_bit | gl::clear_buffer_mask::depth_buffer_bit);
-
-			SDL_GL_SwapWindow(window);
 		}
+
+		gl::clear_color(clear_r, clear_g, clear_b, 1);
+		gl::clear(gl::clear_buffer_mask::color_buffer_bit | gl::clear_buffer_mask::depth_buffer_bit);
+
+		SDL_GL_SwapWindow(window);
 	}
 }
 
