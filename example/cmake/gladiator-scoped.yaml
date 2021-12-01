@@ -1,0 +1,8 @@
+spec-file: gl.xml
+api: [gles2, gl]
+version: ["2.0", "3.3"]
+scope: object
+omit-prefix: true
+enum-case: snake_case
+enum-value-case: snake_case
+function-case: snake_case

@@ -28,12 +28,25 @@ auto quit_sdl(int code) -> tl::expected<int, std::string> {
 	return code;
 }
 
+auto load_gl() {
+	#ifdef USE_SCOPED_LOADER
+		return gl::functions{SDL_GL_GetProcAddress};
+	#else
+		return gl::load_functions(SDL_GL_GetProcAddress);
+	#endif
+}
+
 auto run_example(SDL_Window* window) -> tl::expected<int, std::string> {
-	if (!gl::load_functions(SDL_GL_GetProcAddress)) {
+	const auto gl = load_gl();
+	if (!gl) {
 		return tl::make_unexpected("failed to load OpenGL functions");
 	}
 
-	gl::viewport(0, 0, window_width, window_height);
+	#ifdef USE_SCOPED_LOADER
+		gl.viewport(0, 0, window_width, window_height);
+	#else
+		gl::viewport(0, 0, window_width, window_height);
+	#endif
 
 	while (true) {
 		SDL_Event event;
@@ -43,8 +56,13 @@ auto run_example(SDL_Window* window) -> tl::expected<int, std::string> {
 			}
 		}
 
-		gl::clear_color(clear_r, clear_g, clear_b, 1);
-		gl::clear(gl::clear_buffer_mask::color_buffer_bit | gl::clear_buffer_mask::depth_buffer_bit);
+		#ifdef USE_SCOPED_LOADER
+			gl.clear_color(clear_r, clear_g, clear_b, 1);
+			gl.clear(gl::clear_buffer_mask::color_buffer_bit | gl::clear_buffer_mask::depth_buffer_bit);
+		#else
+			gl::clear_color(clear_r, clear_g, clear_b, 1);
+			gl::clear(gl::clear_buffer_mask::color_buffer_bit | gl::clear_buffer_mask::depth_buffer_bit);
+		#endif
 
 		SDL_GL_SwapWindow(window);
 	}

@@ -1,6 +1,11 @@
 include(cmake/gladiator_requirements.cmake)
 
-set(GLADIATOR_CONFIG ${CMAKE_SOURCE_DIR}/cmake/gladiator.yaml)
+if(EXAMPLE_GENERATE_SCOPED_LOADER)
+	set(GLADIATOR_CONFIG ${CMAKE_SOURCE_DIR}/cmake/gladiator-scoped.yaml)
+else()
+	set(GLADIATOR_CONFIG ${CMAKE_SOURCE_DIR}/cmake/gladiator-global.yaml)
+endif()
+
 set(GLADIATOR_OUTPUT ${CMAKE_BINARY_DIR}/opengl.hxx)
 add_custom_command(
 	OUTPUT ${GLADIATOR_OUTPUT}
