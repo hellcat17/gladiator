@@ -1,0 +1,20 @@
+{% from "util/type_reference.jinja2" import highlevel_typeref, highlevel_params %}
+{% from "util/conversion.jinja2" import convert_params, convert_retval %}
+
+{% macro wrapper(command, underlying, is_const=false) %}
+	{% if command.type_ == CommandType.DEFAULT %}
+		{% set impl =  command.implementation%}
+		{% set rettype = highlevel_typeref(impl.return_type) %}
+		{% set params = highlevel_params(impl.params) %}
+		{% set returns_void = impl.return_type.low_level == "void" and not impl.return_type.back_modifiers %}
+
+		inline auto {{ command.name }}({{ params }}) {% if is_const %}const{% endif %} -> {{ rettype }} {
+			{% if not returns_void %}const auto {{ impl.retval_temporary }} = {% endif -%}
+			{{ underlying }}({{ convert_params(impl.param_conversions) }});
+
+			{% if not returns_void %}
+				return {{ convert_retval(impl) }};
+			{% endif %}
+		}
+	{% endif %}
+{% endmacro %}

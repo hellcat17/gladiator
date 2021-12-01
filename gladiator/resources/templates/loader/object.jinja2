@@ -1,0 +1,75 @@
+{% from "util/type_reference.jinja2" import lowlevel_typeref, lowlevel_params %}
+{% from "util/resolve.jinja2" import resolve %}
+{% from "util/wrapper.jinja2" import wrapper %}
+
+{%- macro make_class_name(level) -%}
+	{{ (options.loader_or_class_name_template or "{api}_{major}{minor}_functions").format(api=level.api.value, major=level.version.major, minor=level.version.minor) }}
+{%- endmacro -%}
+
+{% for level in levels %}
+
+{# procedure type definitions #}
+
+namespace {{ constants.detail_namespace }} {
+
+{% for command in level.commands %}
+	{% set f = command.original %}
+	using _proc_{{ f.name }} = std::add_pointer<{{ lowlevel_typeref(f.return_type) }}({{ lowlevel_params(f.params) }})>::type;
+{% endfor %}
+
+using get_proc_address_func = std::add_pointer<void*(const char*)>::type;
+
+}
+
+{# loaders per level #}
+
+namespace {{ options.loader_or_class_namespace or constants.default_namespace }} {
+
+{% if level.is_merged %}
+	{% set loaderName = options.loader_or_class_name_template or "functions" %}
+{% else %}
+	{% set loaderName = make_class_name(level) %}
+{% endif %}
+
+class {{ loaderName }} {% if loop.previtem %} : public {{ make_class_name(loop.previtem) }} {% endif %} {
+
+{# private members #}
+{% for command in level.commands %}
+	{%- set name = command.original.name -%}
+	const {{ resolve(constants.detail_namespace, "_proc_" + name) }} _{{ name }};
+{% endfor %}
+
+public:
+
+{# constructor #}
+{{ loaderName }}(const {{ resolve(constants.detail_namespace, "get_proc_address_func") }} load) : {% if loop.previtem %}{{ make_class_name(loop.previtem) }}(load),{% endif %}
+{% for command in level.commands %}
+	{%- set name = command.original.name -%}
+	{%- set type = resolve(constants.detail_namespace, "_proc_" + name) -%}
+	_{{ name }}(({{ type }}) load("{{ name }}"))
+	{%- if not loop.last -%},{% endif %}
+{% endfor %} { }
+
+/** determine if all functions were loaded successfully */
+bool is_complete() const {
+{% for command in level.commands %}
+	if (_{{ command.original.name }} == nullptr) return false;
+{% endfor %}
+	return true;
+}
+
+operator bool() const {
+	return is_complete();
+}
+
+{# type-safe wrappers for each command #}
+
+{% for command in level.commands %}
+	{{ wrapper(command, "_" + command.original.name, true) }}
+{% endfor %}
+
+};
+
+}
+
+{% endfor %}
