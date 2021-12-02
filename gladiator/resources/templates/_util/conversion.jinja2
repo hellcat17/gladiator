@@ -1,5 +1,5 @@
-{% from "util/type_reference.jinja2" import lowlevel_typeref, highlevel_typeref %}
-{% from "util/resolve.jinja2" import resolve %}
+{% from "_util/type_reference.jinja2" import lowlevel_typeref, highlevel_typeref %}
+{% from "_util/resolve.jinja2" import resolve %}
 
 {%- macro _cast(action, to_lowlevel) -%}
 	{%- if action.to.high_level -%}

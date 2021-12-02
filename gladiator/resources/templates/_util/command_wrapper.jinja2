@@ -1,7 +1,7 @@
-{% from "util/type_reference.jinja2" import highlevel_typeref, highlevel_params %}
-{% from "util/conversion.jinja2" import convert_params, convert_retval %}
+{% from "_util/type_reference.jinja2" import highlevel_typeref, highlevel_params %}
+{% from "_util/conversion.jinja2" import convert_params, convert_retval %}
 
-{% macro wrapper(command, underlying, is_const=false) %}
+{% macro command_wrapper(command, underlying, is_const=false) %}
 	{% if command.type_ == CommandType.DEFAULT %}
 		{% set impl =  command.implementation%}
 		{% set rettype = highlevel_typeref(impl.return_type) %}

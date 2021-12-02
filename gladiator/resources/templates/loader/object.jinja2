@@ -1,6 +1,6 @@
-{% from "util/type_reference.jinja2" import lowlevel_typeref, lowlevel_params %}
-{% from "util/resolve.jinja2" import resolve %}
-{% from "util/wrapper.jinja2" import wrapper %}
+{% from "_util/type_reference.jinja2" import lowlevel_typeref, lowlevel_params %}
+{% from "_util/resolve.jinja2" import resolve %}
+{% from "_util/command_wrapper.jinja2" import command_wrapper %}
 
 {%- macro make_class_name(level) -%}
 	{{ (options.loader_or_class_name_template or "{api}_{major}{minor}_functions").format(api=level.api.value, major=level.version.major, minor=level.version.minor) }}
@@ -65,7 +65,7 @@ operator bool() const {
 {# type-safe wrappers for each command #}
 
 {% for command in level.commands %}
-	{{ wrapper(command, "_" + command.original.name, true) }}
+	{{ command_wrapper(command, "_" + command.original.name, true) }}
 {% endfor %}
 
 };

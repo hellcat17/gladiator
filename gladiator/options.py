@@ -183,7 +183,7 @@ def make_argument_parser():
     misc.add_argument(
         "--resource-wrapper-namespace",
         default=None,
-        help="namespace of resource wrappers",
+        help="namespace of resource wrappers (default: glw)",
     )
     misc.add_argument(
         "--template-overrides-dir",

@@ -25,6 +25,6 @@ enum class {{ enum.name }} : {{ ut }} {
 };
 
 {% if enum.is_bitmask %}
-	{% include "util/enable_bitmask_operators.jinja2" %}
+	{% include "_include/enable_bitmask_operators.hxx" %}
 {% endif %}
 

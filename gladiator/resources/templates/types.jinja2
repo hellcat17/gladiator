@@ -14,8 +14,8 @@ templates (gladiator.generate.templates.TemplateFiles): Template file paths
 
 #}
 
-{% include "util/dependencies.jinja2" %}
-{% include "util/khrplatform.jinja2" %}
+{% include "_include/type_safe_casts.hxx" %}
+{% include "_include/khrplatform.hxx" %}
 
 namespace {{ constants.type_namespace }} {
 

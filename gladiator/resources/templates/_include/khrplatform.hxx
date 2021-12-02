@@ -1,3 +1,5 @@
+#include <cstdint>
+
 namespace {{ constants.type_namespace }} {
 
 using khronos_int8_t = std::int8_t;
