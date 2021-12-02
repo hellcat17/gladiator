@@ -22,7 +22,7 @@ endif()
 add_executable(${CMAKE_PROJECT_NAME} src/main.cxx ${GLADIATOR_OUTPUT})
 target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE ${ADDITIONAL_COMPILE_OPTIONS})
 target_link_options(${CMAKE_PROJECT_NAME} PRIVATE ${ADDITIONAL_LINK_OPTIONS})
-target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE cxx_std_11)
+target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE cxx_std_14)
 target_include_directories(${CMAKE_PROJECT_NAME}
 	PRIVATE
 		${expected_SOURCE_DIR}/include

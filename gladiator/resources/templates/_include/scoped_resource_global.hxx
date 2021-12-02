@@ -23,6 +23,7 @@ struct resource {
 		wrapper& operator=(const wrapper& other) = delete;
 		wrapper(wrapper&& other) : name(other.name) { other.name = 0; }
 		wrapper& operator=(wrapper&& other) { name = other.name; other.name = 0; return *this; }
+		operator object_names_type() const { return name; }
 	};
 
 	template<create_func_type CreateObjects, delete_func_type DeleteObjects>
@@ -53,6 +54,7 @@ struct resource {
 		single_wrapper& operator=(const single_wrapper& other) = delete;
 		single_wrapper(single_wrapper&& other) : name(other.name) { other.name = 0; }
 		single_wrapper& operator=(single_wrapper&& other) { name = other.name; other.name = 0; return *this; }
+		operator object_names_type() const { return name; }
 	};
 };
 

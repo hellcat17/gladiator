@@ -30,9 +30,45 @@ auto quit_sdl(int code) -> tl::expected<int, std::string> {
 
 auto load_gl() {
 	#ifdef USE_SCOPED_LOADER
-		return gl::functions{SDL_GL_GetProcAddress};
+	return gl::functions{SDL_GL_GetProcAddress};
 	#else
-		return gl::load_functions(SDL_GL_GetProcAddress);
+	return gl::load_functions(SDL_GL_GetProcAddress);
+	#endif
+}
+
+bool test_resource_wrappers() {
+	#ifdef USE_SCOPED_LOADER
+	return true;
+	#else
+	const glw::textures texture_maps{4};
+	for (const auto tex : texture_maps) {
+		gl::bind_texture(gl::texture_target::texture_2d, tex);
+		if (gl::get_error() != gl::error_code::no_error) {
+			return false;
+		}
+		if (gl::is_texture(tex) == gl::boolean::false_) {
+			return false;
+		}
+	}
+
+	const glw::buffer vertex_buffer{};
+	gl::bind_buffer(gl::buffer_target::array_buffer, vertex_buffer);
+	if (gl::get_error() != gl::error_code::no_error) {
+		return false;
+	}
+	if (gl::is_buffer(vertex_buffer) == gl::boolean::false_) {
+		return false;
+	}
+
+	const glw::shader fragment_shader{gl::shader_type::fragment_shader};
+	if (gl::get_error() != gl::error_code::no_error) {
+		return false;
+	}
+	if (gl::is_shader(fragment_shader) == gl::boolean::false_) {
+		return false;
+	}
+
+	return true;
 	#endif
 }
 
@@ -42,10 +78,14 @@ auto run_example(SDL_Window* window) -> tl::expected<int, std::string> {
 		return tl::make_unexpected("failed to load OpenGL functions");
 	}
 
+	if (!test_resource_wrappers()) {
+		return tl::make_unexpected("OpenGL error while testing resource wrappers");
+	}
+
 	#ifdef USE_SCOPED_LOADER
-		gl.viewport(0, 0, window_width, window_height);
+	gl.viewport(0, 0, window_width, window_height);
 	#else
-		gl::viewport(0, 0, window_width, window_height);
+	gl::viewport(0, 0, window_width, window_height);
 	#endif
 
 	while (true) {
@@ -57,11 +97,11 @@ auto run_example(SDL_Window* window) -> tl::expected<int, std::string> {
 		}
 
 		#ifdef USE_SCOPED_LOADER
-			gl.clear_color(clear_r, clear_g, clear_b, 1);
-			gl.clear(gl::clear_buffer_mask::color_buffer_bit | gl::clear_buffer_mask::depth_buffer_bit);
+		gl.clear_color(clear_r, clear_g, clear_b, 1);
+		gl.clear(gl::clear_buffer_mask::color_buffer_bit | gl::clear_buffer_mask::depth_buffer_bit);
 		#else
-			gl::clear_color(clear_r, clear_g, clear_b, 1);
-			gl::clear(gl::clear_buffer_mask::color_buffer_bit | gl::clear_buffer_mask::depth_buffer_bit);
+		gl::clear_color(clear_r, clear_g, clear_b, 1);
+		gl::clear(gl::clear_buffer_mask::color_buffer_bit | gl::clear_buffer_mask::depth_buffer_bit);
 		#endif
 
 		SDL_GL_SwapWindow(window);

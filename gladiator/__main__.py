@@ -21,6 +21,23 @@ from gladiator.prepare.resource_wrapper import (
 )
 
 
+def _get_required_groups_by_commands(commands):
+    for command in commands:
+        if command.return_type.high_level:
+            yield command.return_type.high_level
+        for param in command.params:
+            if param.type_.high_level:
+                yield param.type_.high_level
+
+
+def _filter_unneeded_groups(enums, commands):
+    # NOTE: <require> nodes name required low-level enum values, but not the
+    # high level types, thus we need to remove unneeded groups that were
+    # included due to re-use of an enum value
+    required = set(_get_required_groups_by_commands(commands))
+    return [e for e in enums if e.name in required]
+
+
 def _parse_definitions(spec_root: xml.Element, options: Options):
     types = enums = commands = ()
     enum_nodes = []  # NOTE: unfortunately, no common root
@@ -40,7 +57,9 @@ def _parse_definitions(spec_root: xml.Element, options: Options):
         if node.tag == "extensions":
             pass  # TODO parse extensions
 
-    enums = tuple(parse_required_enums(requirements.enums.keys(), enum_nodes))
+    enums = _filter_unneeded_groups(
+        parse_required_enums(requirements.enums.keys(), enum_nodes), commands
+    )
     return types, enums, commands, feature, requirements
 
 

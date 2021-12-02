@@ -1,3 +1,14 @@
 StencilOp,StencilOpAction
 LogicOp,LogicalPixelOp
 PolygonMode,RasterizationMode
+BufferTargetARB,BufferTarget
+BufferAccessARB,BufferAccess
+BufferUsageARB,BufferUsage
+BufferPNameARB,BufferPName
+BufferPointerNameARB,BufferPointerName
+ClampColorTargetARB,ClampColorTarget
+ClampColorModeARB,ClampColorMode
+ProgramPropertyARB,ProgramProperty
+VertexAttribPropertyARB,VertexAttribProperty
+VertexAttribPointerPropertyARB,VertexAttribPointerProperty
+PointParameterNameARB,PointParameterName

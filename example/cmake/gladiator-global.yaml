@@ -6,3 +6,4 @@ omit-prefix: true
 enum-case: snake_case
 enum-value-case: snake_case
 function-case: snake_case
+generate-resource-wrappers: true
