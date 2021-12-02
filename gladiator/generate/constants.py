@@ -16,6 +16,7 @@ class Constants:
     type_namespace = "_t"
     detail_namespace = "_d"
     default_namespace = "gl"
+    default_resource_wrapper_namespace = "glw"
     enum_underlying_type_overrides = dict(_ENUM_UT_OVERRIDES)
 
 
@@ -24,6 +25,7 @@ class TemplateFiles(Enum):
     ENUM_COLLECTION = "enum_collection.jinja2"
     ENUM = "enum.jinja2"
     LOADER = "loader.jinja2"
+    RESOURCE_WRAPPERS = "resource_wrappers.jinja2"
 
     @classmethod
     def overrides(cls):

@@ -6,9 +6,10 @@ from sys import stdout
 from typing import Iterable, Optional
 from gladiator.parse.type import TypeDefinition
 
-from gladiator.prepare.enum import PreparedEnum
 from gladiator.options import Options
+from gladiator.prepare.enum import PreparedEnum
 from gladiator.prepare.feature import PreparedFeatureLevel
+from gladiator.prepare.resource_wrapper import PreparedResourceWrapper
 from gladiator.generate.constants import TemplateFiles
 from gladiator.generate.templates import make_template_environment, render_template
 
@@ -46,10 +47,14 @@ def _generate_snippets(
     types: Iterable[TypeDefinition],
     enums: Iterable[PreparedEnum],
     levels: Iterable[PreparedFeatureLevel],
+    resource_wrappers: Iterable[PreparedResourceWrapper],
 ):
     yield render_template(env, TemplateFiles.TYPES.value, types=types)
     yield render_template(env, TemplateFiles.ENUM_COLLECTION.value, enums=enums)
     yield render_template(env, TemplateFiles.LOADER.value, levels=levels)
+    yield render_template(
+        env, TemplateFiles.RESOURCE_WRAPPERS.value, resource_wrappers=resource_wrappers
+    )
 
 
 def generate_code(
@@ -57,8 +62,9 @@ def generate_code(
     types: Iterable[TypeDefinition],
     enums: Iterable[PreparedEnum],
     levels: Iterable[PreparedFeatureLevel],
+    resource_wrappers: Iterable[PreparedResourceWrapper],
 ):
     env = make_template_environment(options.template_overrides_dir, options, types)
     with _Writer(options.output) as output:
-        code = "".join(_generate_snippets(env, types, enums, levels))
+        code = "".join(_generate_snippets(env, types, enums, levels, resource_wrappers))
         output.write(_compress(code))

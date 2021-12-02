@@ -1,0 +1,23 @@
+{#
+
+Render resource wrappers for applicable command pairs.
+
+Context
+--------------------------------
+resource_wrappers (Iterable[gladiator.prepare.resource_wrapper.PreparedResourceWrapper]): Wrappers to render
+
+Globals
+--------------------------------
+options (gladiator.options.Options): Merged CLI and config file options
+constants (gladiator.generate.constants.Constants): Constants for shared use
+templates (gladiator.generate.templates.TemplateFiles): Template file paths
+
+#}
+
+{% if options.generate_resource_wrappers %}
+	{% if options.scope == Scope.GLOBAL %}
+		{% include "resource_wrapper/global.jinja2" %}
+	{% elif options.scope == Scope.OBJECT %}
+		{% include "resource_wrapper/object.jinja2" %}
+	{% endif %}
+{% endif %}

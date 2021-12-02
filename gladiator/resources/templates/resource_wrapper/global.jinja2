@@ -1,0 +1,23 @@
+{% from "_util/type_reference.jinja2" import highlevel_typeref, highlevel_typeref_list %}
+{% from "_util/resolve.jinja2" import resolve %}
+
+{% include "_include/scoped_resource_global.hxx" %}
+
+{%- macro command_reference(command) -%}
+	{{ resolve(options.loader_or_class_namespace or constants.default_namespace, command) }}
+{%- endmacro -%}
+
+namespace {{ options.resource_wrapper_namespace or constants.default_resource_wrapper_namespace }} {
+	{% for wrapper in resource_wrappers %}
+		{% set extra = highlevel_typeref_list(wrapper.additional_param_types) %}
+		{% set create = command_reference(wrapper.create.name) %}
+		{% set delete = command_reference(wrapper.delete.name) %}
+
+		{% if wrapper.type_ == ResourceWrapperType.MULTI %}
+			using {{ wrapper.underlying.singular_name }} = resource<{{ extra }}>::wrapper<{{ create }},{{ delete }}>;
+			using {{ wrapper.underlying.plural_name }} = resource<{{ extra }}>::array_wrapper<{{ create }},{{ delete }}>;
+		{% elif wrapper.type_ == ResourceWrapperType.SINGLE %}
+			using {{ wrapper.underlying.name }} = resource<{{ extra }}>::single_wrapper<{{ create }},{{ delete }}>;
+		{% endif %}
+	{% endfor %}
+}

@@ -1,0 +1,3 @@
+glCreateProgram,glDeleteProgram,Program
+glCreateShader,glDeleteShader,Shader
+glCreateShaderProgramv,glDeleteProgram,DsaShaderProgram

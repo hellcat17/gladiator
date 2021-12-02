@@ -41,3 +41,9 @@
 		{{ highlevel_typeref(param.type_) }} {{ param.name }}{% if not loop.last %},{% endif %}
 	{%- endfor -%}
 {%- endmacro -%}
+
+{%- macro highlevel_typeref_list(refs) -%}
+	{%- for ref in refs -%}
+		{{ highlevel_typeref(ref) }}{% if not loop.last %},{% endif %}
+	{%- endfor -%}
+{%- endmacro -%}

@@ -1,4 +1,5 @@
 asm
+and
 auto
 bool
 break
@@ -30,6 +31,7 @@ mutable
 namespace
 new
 operator
+or
 private
 protected
 public
@@ -57,3 +59,4 @@ void
 volatile
 wchar_t
 while
+xor

@@ -8,6 +8,7 @@ import jinja2
 from gladiator.generate.constants import Constants, TemplateFiles
 from gladiator.parse.type import TypeDefinition
 from gladiator.prepare.command import CommandType, ConversionType
+from gladiator.prepare.resource_wrapper import ResourceWrapperType
 from gladiator.options import Scope
 from gladiator.resources import BASE_RESOURCE_PATH
 
@@ -27,6 +28,7 @@ def _make_globals(options: "Options", types: Iterable[TypeDefinition]):
         "Scope": Scope,
         "CommandType": CommandType,
         "ConversionType": ConversionType,
+        "ResourceWrapperType": ResourceWrapperType,
     }
 
 

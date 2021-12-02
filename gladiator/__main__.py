@@ -15,6 +15,10 @@ from gladiator.prepare.enum import prepare_enums, PreparedEnum
 from gladiator.prepare.feature import prepare_feature_levels, PreparedFeatureLevel
 from gladiator.options import make_argument_parser, Options
 from gladiator.tools.compare import get_all_feature_requirements, merge_requirements
+from gladiator.prepare.resource_wrapper import (
+    prepare_resource_wrappers,
+    PreparedResourceWrapper,
+)
 
 
 def _parse_definitions(spec_root: xml.Element, options: Options):
@@ -45,6 +49,7 @@ class _ParseResult:
     types: Sequence[TypeDefinition]
     enums: Dict[str, PreparedEnum]
     feature_levels: Sequence[PreparedFeatureLevel]
+    resource_wrappers: Sequence[PreparedResourceWrapper]
 
 
 def _parse_spec(spec_root: xml.Element, options: Options):
@@ -56,6 +61,7 @@ def _parse_spec(spec_root: xml.Element, options: Options):
     return _ParseResult(
         types=types,
         enums=prepared_enums,
+        resource_wrappers=tuple(prepare_resource_wrappers(prepared_commands, options)),
         feature_levels=prepare_feature_levels(
             feature.api, requirements, prepared_commands
         ),
@@ -79,7 +85,13 @@ def cli(*args) -> int:
 
     spec_root = xml.parse(options.spec_file).getroot()
     result = _parse_spec(spec_root, options)
-    generate_code(options, result.types, result.enums.values(), result.feature_levels)
+    generate_code(
+        options,
+        result.types,
+        result.enums.values(),
+        result.feature_levels,
+        result.resource_wrappers,
+    )
 
     return 0
 
