@@ -6,6 +6,7 @@ from typing import Iterable, Optional, TYPE_CHECKING
 import jinja2
 
 from gladiator.generate.constants import Constants, TemplateFiles
+from gladiator.parse.feature import FeatureApi, FeatureVersion
 from gladiator.parse.type import TypeDefinition
 from gladiator.prepare.command import CommandType, ConversionType
 from gladiator.prepare.resource_wrapper import ResourceWrapperType
@@ -19,6 +20,13 @@ if TYPE_CHECKING:
 BASE_TEMPLATE_DIR = BASE_RESOURCE_PATH / "templates"
 
 
+def _make_api_version_identifier(
+    apis: Iterable[FeatureApi], versions: Iterable[FeatureVersion]
+):
+    for api, version in zip(apis, versions):
+        yield f"{api.value.upper()}_{version.major}_{version.minor}"
+
+
 def _make_globals(options: "Options", types: Iterable[TypeDefinition]):
     return {
         "options": options,
@@ -29,6 +37,9 @@ def _make_globals(options: "Options", types: Iterable[TypeDefinition]):
         "CommandType": CommandType,
         "ConversionType": ConversionType,
         "ResourceWrapperType": ResourceWrapperType,
+        "api_version_id": "__".join(
+            _make_api_version_identifier(options.api, options.version)
+        ),
     }
 
 

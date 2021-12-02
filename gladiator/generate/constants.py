@@ -26,6 +26,8 @@ class TemplateFiles(Enum):
     ENUM = "enum.jinja2"
     LOADER = "loader.jinja2"
     RESOURCE_WRAPPERS = "resource_wrappers.jinja2"
+    BEFORE = "before.jinja2"
+    AFTER = "after.jinja2"
 
     @classmethod
     def overrides(cls):

@@ -49,12 +49,14 @@ def _generate_snippets(
     levels: Iterable[PreparedFeatureLevel],
     resource_wrappers: Iterable[PreparedResourceWrapper],
 ):
+    yield render_template(env, TemplateFiles.BEFORE.value)
     yield render_template(env, TemplateFiles.TYPES.value, types=types)
     yield render_template(env, TemplateFiles.ENUM_COLLECTION.value, enums=enums)
     yield render_template(env, TemplateFiles.LOADER.value, levels=levels)
     yield render_template(
         env, TemplateFiles.RESOURCE_WRAPPERS.value, resource_wrappers=resource_wrappers
     )
+    yield render_template(env, TemplateFiles.AFTER.value)
 
 
 def generate_code(
