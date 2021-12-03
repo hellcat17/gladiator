@@ -1,6 +1,6 @@
-find_package(Python COMPONENTS Interpreter REQUIRED)
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
 execute_process(
-	COMMAND ${Python_EXECUTABLE} -c "import gladiator"
+	COMMAND ${Python3_EXECUTABLE} -c "import gladiator"
 	RESULT_VARIABLE EXIT_CODE
 )
 if (NOT "${EXIT_CODE}" STREQUAL 0)
