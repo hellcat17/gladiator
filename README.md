@@ -25,6 +25,10 @@ casting the parameter types where required.
 ## Basic usage
 
 1. Download the latest machine-readable OpenGL specification file from https://github.com/KhronosGroup/OpenGL-Registry/blob/main/xml/gl.xml.
+2. Install gladiator via pip:
+    ```
+    $ python -m pip install --user gladiator-gen
+    ```
 2. Specify the API and version within the spec file for which to generate wrappers:
     ```
     $ python -m gladiator --spec-file <file> --api <gl|gles1|gles2|glsc2> --version <version>

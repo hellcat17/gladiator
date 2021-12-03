@@ -1,10 +1,11 @@
 [tool.poetry]
-name = "gladiator"
+name = "gladiator-gen"
 version = "0.1.0"
 description = "Generate type-safe, zero-overhead OpenGL wrappers for C++"
 authors = ["hellcat17 <dodgehellcat17@outlook.com>"]
 packages = [{ include = "gladiator" }]
 include = ["resources/data/**", "resources/templates/**"]
+repository = "https://github.com/hellcat17/gladiator"
 classifiers = [
     "Environment :: GPU",
     "Topic :: Multimedia :: Graphics",
