@@ -40,7 +40,7 @@ bool test_resource_wrappers() {
 	#ifdef USE_SCOPED_LOADER
 	return true;
 	#else
-	const glw::textures texture_maps{4};
+	const glw::texture_list texture_maps{4};
 	for (const auto tex : texture_maps) {
 		gl::bind_texture(gl::texture_target::texture_2d, tex);
 		if (gl::get_error() != gl::error_code::no_error) {
