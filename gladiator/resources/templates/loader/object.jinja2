@@ -2,6 +2,8 @@
 {% from "_util/resolve.jinja2" import resolve %}
 {% from "_util/command_wrapper.jinja2" import command_wrapper %}
 
+{% include "_include/opengl_debug.hxx" %}
+
 {%- macro make_class_name(level) -%}
 	{{ (options.loader_or_class_name_template or "{api}_{major}{minor}_functions").format(api=level.api.value, major=level.version.major, minor=level.version.minor) }}
 {%- endmacro -%}
@@ -48,7 +50,14 @@ public:
 	{%- set type = resolve(constants.detail_namespace, "_proc_" + name) -%}
 	_{{ name }}(({{ type }}) load("{{ name }}"))
 	{%- if not loop.last -%},{% endif %}
-{% endfor %} { }
+{% endfor %}
+{
+	{% if loop.first %}
+		#ifndef _NDEBUG
+		{{ resolve(constants.detail_namespace, "setup_debug_output") }}(load);
+		#endif
+	{% endif %}
+}
 
 /** determine if all functions were loaded successfully */
 bool is_complete() const {

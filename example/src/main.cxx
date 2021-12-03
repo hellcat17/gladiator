@@ -112,6 +112,9 @@ constexpr std::array<std::pair<SDL_GLattr, int>, 10> window_settings = {{
 		{SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE},
 		{SDL_GL_CONTEXT_MAJOR_VERSION, 3},
 		{SDL_GL_CONTEXT_MINOR_VERSION, 3},
+#ifndef _NDEBUG
+		{SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG},
+#endif
 }};
 
 auto set_attributes() -> tl::expected<void, std::string> {

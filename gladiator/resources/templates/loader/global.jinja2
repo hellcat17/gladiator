@@ -2,6 +2,8 @@
 {% from "_util/resolve.jinja2" import resolve %}
 {% from "_util/command_wrapper.jinja2" import command_wrapper %}
 
+{% include "_include/opengl_debug.hxx" %}
+
 {%- macro make_loader_name(level) -%}
 	{{ (options.loader_or_class_name_template or "load_{api}_{major}{minor}_functions").format(api=level.api.value, major=level.version.major, minor=level.version.minor) }}
 {%- endmacro -%}
@@ -41,6 +43,12 @@ bool {{ loaderName }}(const {{ resolve(constants.detail_namespace, "get_proc_add
 {# load the functions of the previous version #}
 {% if loop.previtem %}
 	{{ make_loader_name(loop.previtem) }}(load);
+{% endif %}
+
+{% if loop.first %}
+	#ifndef _NDEBUG
+	{{ resolve(constants.detail_namespace, "setup_debug_output") }}(load);
+	#endif
 {% endif %}
 
 {% for command in level.commands %}
