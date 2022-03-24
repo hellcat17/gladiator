@@ -42,9 +42,7 @@ casting the parameter types where required.
     $ python -m gladiator --spec-file <file> --api gles2 gl --version 3.0 4.3
     ```
     WARNING: be very careful with the intersection feature, as it does not
-    always make sense. Mixing OpenGL ES 2.0 with OpenGL 3+ for example is
-    impossible, as OpenGL ES does not yet have vertex array objects, which
-    are required for rendering in OpenGL 3+.
+    always make sense. Use it with modern OpenGL(ES) only.
 
 5. Most libraries that manage windows, input and OpenGL contexts abstract the
    platform-specific `GetProcAddress` function for retrieving OpenGL function
